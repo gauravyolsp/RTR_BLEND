@@ -29,3 +29,4 @@ Release_x86/
 # Ignore files
 .exe
 .obj
+.DS_Store
