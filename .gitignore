@@ -25,3 +25,7 @@
 Release/
 Release_x64/
 Release_x86/
+
+# Ignore files
+.exe
+.obj
