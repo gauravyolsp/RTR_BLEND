@@ -1,0 +1,45 @@
+#include <stdio.h>
+
+int main(void)
+{
+    // variable declarations
+    int num = 5;
+    int* const ptr = NULL; // Read this line from right to left => "ptr is a constant (const) pointer (*) to integer (int)."
+
+    // code
+    printf("\n");
+    printf("Current Value Of 'num' = %d\n", num);
+    printf("Current 'ptr' (Address of 'num') = %p\n", ptr);
+
+    // The Following line does Not give error ... as we are modifying the value of the variable individually
+
+    num++;
+    printf("\n\n");
+    printf("After num++, Value of 'num' = %d\n", num);
+
+    // The following line gives error and is hence commented out.
+    // We cannot alter the 'ptr' value as 'ptr' is "a constant pointer to integer".
+    // With respect to the pointer, the value it points to is not constant but the pointer itself is constant.
+    // Uncomment it and see the error.
+
+    // ptr++;
+
+    // The Following line does Not Give error
+    // We do not get error because we are changing the pointer (address).
+    // The pointer is not constant. The value to which the pointer points is constant.
+
+    (*ptr)++;
+
+    printf("\n\n");
+    printf("After (*ptr)++, value of 'ptr' = %p\n", ptr);
+    printf("Value At this new 'ptr' = %d\n", *ptr);
+    printf("\n");
+
+    return(0);
+}
+
+// CONCLUSION
+// As "ptr" is a "constant pointer to a variable integer" -  we can change the value stored at address "ptr" but we cannot change the 'ptr' (address) itself.
+// We can change the value of the variable (num) individually - whose address is contained in "ptr".
+// We can also change "the value at address of ptr" -  we can change the value of "num" with respect to "ptr" => (*ptr)++ is allowed.
+// We cannot change the value of 'ptr' => That is we cannot store a new address inside 'ptr' => so, ptr++ is NOT allowed
