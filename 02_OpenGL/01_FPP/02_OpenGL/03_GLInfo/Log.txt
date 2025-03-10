@@ -1,8 +1,0 @@
-Program started successfully
-OPENGL INFORMATION
-******************
-OpenGL Vendor   : Intel
-OpenGL Renderer : Intel(R) RaptorLake-S Mobile Graphics Controller
-OpenGL Version  : 4.6.0 - Build 32.0.101.6129
-******************
-Initailize() Completed SuccessfullyProgram terminated successfully
