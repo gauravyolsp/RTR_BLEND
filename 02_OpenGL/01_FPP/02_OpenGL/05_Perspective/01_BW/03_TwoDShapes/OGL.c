@@ -5,12 +5,14 @@
 
 // OpenGl related header files
 #include <gl/GL.h>
+#include <gl/GLU.h>
 
 // User defined header file
 #include "OGL.h"
 
 // OpenGl related libraries
 #pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "GLU32.lib")
 
 // Macros 
 #define WIN_WIDTH 800
@@ -271,6 +273,7 @@ int initialize(void)
 {
 	// Function declarations
 	void printGLInfo(void);
+	void resize(int, int);
 
 	// variable declarations
 	PIXELFORMATDESCRIPTOR pfd;
@@ -334,6 +337,8 @@ int initialize(void)
 	// Tell OpenGL to choose the color to clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+	// Warmup resize
+	resize(WIN_WIDTH, WIN_HEIGHT);
 	return(0);
 }
 
@@ -359,6 +364,18 @@ void resize(int width, int height)
 	}
 	// set the view port
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+
+	// Set matrix projection mode
+	glMatrixMode(GL_PROJECTION);
+
+	// Set to identity matrix
+	glLoadIdentity();
+
+	// Do Perspective projection
+	gluPerspective(45.0f, // FOV-Y 
+		(GLfloat) width / (GLfloat)height, // Aspect Ratio 
+		0.1f, // Near 
+		100.0f); // Far
 }
 
 void display(void)
@@ -367,17 +384,48 @@ void display(void)
 	// Clear OpenGl Buffer
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// Set Matrix to model view mode
+	glMatrixMode(GL_MODELVIEW);
+
+	// Set to identity matirx
+	glLoadIdentity();
+
+	// Transla7te Triangle Backwards by Z (-ve)
+	glTranslatef(-1.5f, 0.0f, -6.0f);
+
 	// Triangle drawing code
 	glBegin(GL_TRIANGLES);
+	
 	//top
-	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex3f(0.0f, 1.0f, 0.0f);
 	// left bottom
-	glColor3f(0.0f, 1.0f, 0.0f);
 	glVertex3f(-1.0f, -1.0f, 0.0f);
 	// right bottom
-	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex3f(1.0f, -1.0f, 0.0f);
+	
+	glEnd();
+
+	// RECTANGLE
+
+	// Set to identity matirx
+	glLoadIdentity();
+
+	// Transla7te Triangle Backwards by Z (-ve)
+	glTranslatef(1.5f, 0.0f, -6.0f);
+
+	// Triangle drawing code
+	glBegin(GL_QUADS);
+
+	//Right Top 
+	glVertex3f(1.0f, 1.0f, 0.0f);
+	//Left Top
+	glVertex3f(-1.0f, 1.0f, 0.0f);
+	// Left bottom
+	glVertex3f(-1.0f, -1.0f, 0.0f);
+	// Right bottom
+	glVertex3f(1.0f, -1.0f, 0.0f);
+	//
+
 	glEnd();
 
 	// Swap the Buffers
