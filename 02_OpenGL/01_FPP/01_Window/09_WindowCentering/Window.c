@@ -44,6 +44,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	TCHAR szAppName[] = TEXT("RTR6");
 	BOOL bDone = FALSE;
 
+	int cxScreen;
+	int cyScreen;
+	
 	// Code
 	// Create Log File
 	gpFile = fopen(gszLogFileName, "w");
@@ -72,6 +75,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpszMenuName = NULL;
 	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
+	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
+	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+
+	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
+	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
+
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);
 
@@ -80,8 +89,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		cxScreen,	
+		cyScreen,
 		WIN_WIDTH,
 		WIN_HEIGHT,
 		NULL,
