@@ -391,11 +391,34 @@ void display(void)
 	glLoadIdentity();
 
 	// Transla7te Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -6.0f);
+	glTranslatef(-1.5f, 0.0f, -6.0f);
+
+	// Triangle drawing code
+	glBegin(GL_TRIANGLES);
+	
+	//top
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f);
+	// left bottom
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, 0.0f);
+	// right bottom
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 0.0f);
+	
+	glEnd();
+
+	// RECTANGLE
+
+	// Set to identity matirx
+	glLoadIdentity();
+
+	// Transla7te Triangle Backwards by Z (-ve)
+	glTranslatef(1.5f, 0.0f, -6.0f);
 
 	// Triangle drawing code
 	glBegin(GL_QUADS);
-	
+
 	glColor3f(1.0f, 0.0f, 0.0f);
 	//Right Top 
 	glVertex3f(1.0f, 1.0f, 0.0f);
@@ -406,7 +429,7 @@ void display(void)
 	// Right bottom
 	glVertex3f(1.0f, -1.0f, 0.0f);
 	//
-	
+
 	glEnd();
 
 	// Swap the Buffers

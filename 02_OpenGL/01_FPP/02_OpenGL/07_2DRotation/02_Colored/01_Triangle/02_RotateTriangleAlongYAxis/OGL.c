@@ -42,6 +42,9 @@ BOOL gbEscapeKeyIsPressed = FALSE;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
+// Rotaion Angles
+float angleTriangle = 0.0f;
+
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -384,28 +387,32 @@ void display(void)
 	// Clear OpenGl Buffer
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// TRIANGLE
+	
 	// Set Matrix to model view mode
 	glMatrixMode(GL_MODELVIEW);
 
 	// Set to identity matirx
 	glLoadIdentity();
 
-	// Transla7te Triangle Backwards by Z (-ve)
+	// Translate Triangle Backwards by Z (-ve)
 	glTranslatef(0.0f, 0.0f, -6.0f);
 
+	// Rotation
+	glRotatef(angleTriangle, 0.0f, 1.0f, 0.0f);
+
 	// Triangle drawing code
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLES);
 	
+	//top
 	glColor3f(1.0f, 0.0f, 0.0f);
-	//Right Top 
-	glVertex3f(1.0f, 1.0f, 0.0f);
-	//Left Top
-	glVertex3f(-1.0f, 1.0f, 0.0f);
-	// Left bottom
+	glVertex3f(0.0f, 1.0f, 0.0f);
+	// left bottom
+	glColor3f(0.0f, 1.0f, 0.0f);
 	glVertex3f(-1.0f, -1.0f, 0.0f);
-	// Right bottom
+	// right bottom
+	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex3f(1.0f, -1.0f, 0.0f);
-	//
 	
 	glEnd();
 
@@ -416,6 +423,12 @@ void display(void)
 void update(void)
 {
 	// code
+	angleTriangle = angleTriangle + 0.5f;
+
+	if (angleTriangle >= 360.0f)
+	{
+		angleTriangle = angleTriangle - 360.0f;
+	}
 }
 
 void uninitialize(void)
@@ -466,5 +479,3 @@ void uninitialize(void)
 		gpFile = NULL;
 	}
 }
-
-//WM_NCCALCSIZE

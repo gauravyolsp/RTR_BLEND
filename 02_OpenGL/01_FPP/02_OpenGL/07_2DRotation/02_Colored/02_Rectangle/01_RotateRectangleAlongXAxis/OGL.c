@@ -42,6 +42,9 @@ BOOL gbEscapeKeyIsPressed = FALSE;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
+// Rotaion Angles
+float angleRectangle = 0.0f;
+
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -383,6 +386,8 @@ void display(void)
 	// code
 	// Clear OpenGl Buffer
 	glClear(GL_COLOR_BUFFER_BIT);
+	
+	// RECTANGLE
 
 	// Set Matrix to model view mode
 	glMatrixMode(GL_MODELVIEW);
@@ -393,9 +398,12 @@ void display(void)
 	// Transla7te Triangle Backwards by Z (-ve)
 	glTranslatef(0.0f, 0.0f, -6.0f);
 
+	// Rotation
+	glRotatef(angleRectangle, 1.0f, 0.0f, 0.0f);
+
 	// Triangle drawing code
 	glBegin(GL_QUADS);
-	
+
 	glColor3f(1.0f, 0.0f, 0.0f);
 	//Right Top 
 	glVertex3f(1.0f, 1.0f, 0.0f);
@@ -405,8 +413,7 @@ void display(void)
 	glVertex3f(-1.0f, -1.0f, 0.0f);
 	// Right bottom
 	glVertex3f(1.0f, -1.0f, 0.0f);
-	//
-	
+
 	glEnd();
 
 	// Swap the Buffers
@@ -416,6 +423,12 @@ void display(void)
 void update(void)
 {
 	// code
+	angleRectangle = angleRectangle - 0.5f;
+
+	if (angleRectangle <= 0.0f)
+	{
+		angleRectangle = angleRectangle + 360.0f;
+	}
 }
 
 void uninitialize(void)
