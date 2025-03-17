@@ -77,9 +77,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 
 	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
 	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+	//char sData[1024] = { 0 };
+	//wsprintf(sData, "Before :cxScreen %d, cyScreen %d\n", cxScreen, cyScreen);
+	//fprintf(gpFile, sData);
 
 	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
 	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
+	
+	//char sData[1024] = {0};
+	//wsprintf(sData, "Afetr cxScreen %d, cyScreen %d\n", cxScreen, cyScreen);
+	//fprintf(gpFile, sData);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);

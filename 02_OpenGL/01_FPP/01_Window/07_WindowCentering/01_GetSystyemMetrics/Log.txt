@@ -1,0 +1,4 @@
+Program started successfully
+Before :cxScreen 1707, cyScreen 1067
+Afetr cxScreen 453, cyScreen 233
+Initailize() Completed SuccessfullyProgram terminated successfully

@@ -1,0 +1,4 @@
+Program started successfully
+Left 0, top 0, right 1707, bottom 1019
+cxScreen 453, cyScreen 209
+Initailize() Completed SuccessfullyProgram terminated successfully
