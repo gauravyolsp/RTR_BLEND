@@ -78,15 +78,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	RECT rect;
 	BOOL bFlag = SystemParametersInfoA(SPI_GETWORKAREA, 0, &rect, 0);
 	
-	/*char sData[1024] = {0};
+	char sData[1024] = {0};
 	wsprintf(sData, "Left %ld, top %ld, right %ld, bottom %ld\n", rect.left, rect.top, rect.right, rect.bottom);
-	fprintf(gpFile, sData);*/
+	fprintf(gpFile, sData);
 	
 	 cxScreen = (rect.right / 2) - (WIN_WIDTH / 2);
 	 cyScreen = (rect.bottom / 2) - (WIN_HEIGHT / 2);
 
-	 /*wsprintf(sData, "cxScreen %d, cyScreen %d\n", cxScreen, cyScreen);
-	 fprintf(gpFile, sData);*/
+	 wsprintf(sData, "cxScreen %d, cyScreen %d\n", cxScreen, cyScreen);
+	 fprintf(gpFile, sData);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);

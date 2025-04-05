@@ -42,6 +42,11 @@ BOOL gbEscapeKeyIsPressed = FALSE;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
+// Solar system related variables
+int year = 0;
+int date = 0;
+GLUquadric* quadric = NULL;
+
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -224,6 +229,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					toggleFullScreen();
 					gbFullScreen = FALSE;
 				}
+			break;
+			case 'D':
+				date = (date + 6) % 360;
+				break;
+			case 'd':
+				date = (date - 6) % 360;
+				break;
+			case 'Y':
+				year = (year + 3) % 360;
+				break;
+			case 'y':
+				year = (year - 3) % 360;
 				break;
 			}
 		break;
@@ -291,6 +308,7 @@ int initialize(void)
 	pfd.cGreenBits = 8;
 	pfd.cBlueBits = 8;
 	pfd.cAlphaBits = 8;
+	pfd.cDepthBits = 32;
 
 	// getDC
 	ghdc = GetDC(ghwnd);
@@ -333,9 +351,24 @@ int initialize(void)
 	}
 
 	printGLInfo();
+
+	// Depth related code
+	glShadeModel(GL_SMOOTH);
+
+	glClearDepth(1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
 	// From here onwards OpenGL code starts
 	// Tell OpenGL to choose the color to clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	// initialize quadric
+	quadric = gluNewQuadric();
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
@@ -382,7 +415,7 @@ void display(void)
 {
 	// code
 	// Clear OpenGl Buffer
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Set Matrix to model view mode
 	glMatrixMode(GL_MODELVIEW);
@@ -391,22 +424,63 @@ void display(void)
 	glLoadIdentity();
 
 	// Transla7te Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -6.0f);
+	//glTranslatef(0.0f, 0.0f, -6.0f);
 
-	// Triangle drawing code
-	glBegin(GL_TRIANGLES);
+	// Do view transformation
+	gluLookAt(0.0f,
+		0.0f, 
+		5.0f, 
+		0.0f, 
+		0.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		0.0f);
+
+	// Code For Sun
+	// Save Above transformation into model view matrix stack
+	glPushMatrix(); // CTM
 	
-	//top
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-	// left bottom
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f);
-	// right bottom
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f);
-	
-	glEnd();
+	// Adjust the polls of sphere of sun
+	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+
+	// Set Sun Polygon property
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	// Make Sun Yellow
+	glColor3f(1.0f, 1.0f, 0.0f);
+
+	gluSphere(quadric, 0.75f, 30, 30);
+
+	// After drawing sphere we need to go back to the original to draw earth, Hence restore the matrix
+	glPopMatrix();
+
+	// Code For Earth
+	// Again save this matrix to lets us to come back again (LookAt)
+	glPushMatrix();
+
+	// Let the earth allow to revolve around the sun
+	glRotatef((GLfloat)year, 0.0f, 1.0f, 0.0f);
+
+	// Earth at some distance form the sun
+	glTranslatef(1.5f, 0.0f, 0.0f);
+
+	// Adjust the polls of sphere of earth
+	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+
+	// Now let the earth spin / rotate around itself
+	glRotatef((GLfloat)date, 0.0f, 0.0f, 1.0f);
+
+	// Set earth Polygon property
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// Make earth blue
+	glColor3f(0.4f, 0.7f, 1.0f);
+
+	gluSphere(quadric, 0.2f, 20, 20);
+
+	// After drawing sphere we need to go back to the original, Hence restore the matrix
+	glPopMatrix();
 
 	// Swap the Buffers
 	SwapBuffers(ghdc);
@@ -457,6 +531,11 @@ void uninitialize(void)
 		ghwnd = NULL;
 	}
 
+	if (quadric)
+	{
+		gluDeleteQuadric(quadric);
+		quadric = NULL;
+	}
 	// close the file
 	if(gpFile != NULL)
 	{
@@ -465,5 +544,3 @@ void uninitialize(void)
 		gpFile = NULL;
 	}
 }
-
-//WM_NCCALCSIZE
