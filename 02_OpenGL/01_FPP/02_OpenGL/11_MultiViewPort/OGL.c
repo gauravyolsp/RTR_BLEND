@@ -63,6 +63,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	MSG msg;
 	TCHAR szAppName[] = TEXT("RTR6");
 	BOOL bDone = FALSE;
+	int cxScreen;
+	int cyScreen;
 
 	// Code
 	// Create Log File
@@ -86,11 +88,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
-	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+
+	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
+	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
+	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);
@@ -100,8 +107,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		cxScreen,
+		cyScreen,
 		WIN_WIDTH,
 		WIN_HEIGHT,
 		NULL,
@@ -312,13 +319,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			case '9':
 				GetWindowPlacement(ghwnd, &wpPrev);
 
-				x = (wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2 - (WIN_WIDTH / 2);
-				y = (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2 - (WIN_HEIGHT / 2);
+				x = ((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2) - (WIN_WIDTH / 2);
+				y = ((wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2) - (WIN_HEIGHT / 2);
 
+				x = x / 2;
+				y = y / 2;
+				/*fprintf(gpFile, "\ncase 9, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);*/
 
-				fprintf(gpFile, "\ncase 9, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
-
-				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2 - (WIN_WIDTH / 2), (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2 - (WIN_HEIGHT / 2));
+				//resize(cxScreen, cyScreen);
+				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2 , (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
 				break;
 			case '0':
 				GetWindowPlacement(ghwnd, &wpPrev);

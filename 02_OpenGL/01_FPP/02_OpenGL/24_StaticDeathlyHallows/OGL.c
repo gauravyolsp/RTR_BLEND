@@ -46,7 +46,14 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
 // My Global variables
-float g_XAxis = 0.0f;
+GLfloat g_XAxis = 0.0f;
+
+GLfloat g_x1 = -1.0f;
+GLfloat g_y1 = -1.0f;
+GLfloat g_x2 = 1.0f;
+GLfloat g_y2 = -1.0f;
+GLfloat g_x3 = 0.0f;
+GLfloat g_y3 = 0.732051f;
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -63,12 +70,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	MSG msg;
 	TCHAR szAppName[] = TEXT("RTR6");
 	BOOL bDone = FALSE;
+	int cxScreen;
+	int cyScreen;
 
 	// Code
 	// Create Log File
 	gpFile = fopen(gszLogFileName, "w");
 
-	if(gpFile == NULL)
+	if (gpFile == NULL)
 	{
 		MessageBox(NULL, TEXT("LOG FILE CREATION FAILED !!!"), TEXT("FILE I/O ERROR"), MB_OK);
 		exit(0);
@@ -86,22 +95,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
-	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+
+	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
+	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
+	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, 
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW,
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		cxScreen,
+		cyScreen,
 		WIN_WIDTH,
 		WIN_HEIGHT,
 		NULL,
@@ -387,7 +401,7 @@ void resize(int width, int height)
 void display(void)
 {
 	// function declarations
-	void DrawCircle(float);
+	void DrawCircle(void);
 	void DrawTriangle(void);
 
 	// code
@@ -401,30 +415,38 @@ void display(void)
 	glLoadIdentity();
 
 	// Translate Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glTranslatef(0.0f, 0.0f, -5.0f);
 
 	// Drawing Deathly Hallow on centre
 	glLineWidth(5.0f);
 	glBegin(GL_LINES);
 	//glColor3f(1.0f, 0.0f, 1.0f);
-	glVertex3f(0.0f, 0.4f, 0.0f);
-	glVertex3f(0.0f, -0.22f, 0.0f);
+	glVertex3f(g_x3, g_y3, 0.0f);
+	glVertex3f(0.0f, -1.0f, 0.0f);
 	glEnd();
 
-	DrawCircle(0.215f);
+	DrawCircle();
 	DrawTriangle();
 
 	// Swap the Buffers
 	SwapBuffers(ghdc);
 }
 
-void DrawCircle(float radius)
+void DrawCircle(void)
 {
-	// Drawing circle with points on centre
-	//float radius = 0.2f;
-	float centerX = 0.0f;
-	float centerY = 0.0f;
+	float aa = sqrt(pow((g_x2 - g_x1), 2) + pow((g_y2 - g_y1), 2));
+	float bb = sqrt(pow((g_x3 - g_x2), 2) + pow((g_y3 - g_y2), 2));
+	float cc = sqrt(pow((g_x3 - g_x1), 2) + pow((g_y3 - g_y1), 2));
 
+	//float s = (aa + bb + cc) / 2;
+	float ra = (sqrt(3) / 6) * aa;
+	//fprintf(gpFile, "\n\na = %f, b = %f, c = %f, s = %f, ra = %f\n\n", aa, bb, cc, s, ra);
+
+	// Drawing circle with points on centre
+	float radius = 0.577350;
+	float centerX = ((aa * g_x1) + (bb * g_x2) + (cc * g_x3)) / (aa + bb + cc);
+	float centerY = ((aa * g_y1) + (bb * g_y2) + (cc * g_y3)) / (aa + bb + cc);
+	
 	for (float angle = 0.0f; angle < (2 * M_PI); angle += 0.01)
 	{
 		float x = centerX + radius * cos(angle);
@@ -444,20 +466,20 @@ void DrawTriangle(void)
 	glLineWidth(5.0f);
 	glBegin(GL_LINES);
 	//glColor3f(0.0f, 1.0f, 1.0f);
-	glVertex3f(0.0f, 0.4f, 0.0f);
-	glVertex3f(-0.4f, -0.22f, 0.0f);
+	glVertex3f(g_x1, g_y1, 0.0f);
+	glVertex3f(g_x2, g_y2, 0.0f);
 	glEnd();
 
 	glBegin(GL_LINES);
 	//glColor3f(1.0f, 1.0f, 0.0f);
-	glVertex3f(-0.4f, -0.22f, 0.0f);
-	glVertex3f(0.4f, -0.22f, 0.0f);
+	glVertex3f(g_x2, g_y2, 0.0f);
+	glVertex3f(g_x3, g_y3, 0.0f);
 	glEnd();
 
 	glBegin(GL_LINES);
 	//glColor3f(1.0f, 1.0f, 0.0f);
-	glVertex3f(0.4f, -0.22f, 0.0f);
-	glVertex3f(0.0f, 0.4f, 0.0f);
+	glVertex3f(g_x3, g_y3, 0.0f);
+	glVertex3f(g_x1, g_y1, 0.0f);
 	glEnd();
 }
 

@@ -405,6 +405,8 @@ BOOL loadGLTexture(GLuint *texture, TCHAR imageRecourceID[])
 
 		// Generate OpenGL Texture Object
 		glGenTextures(1, texture);
+		// Map Empty Address / target to texture.
+		// Reserved address
 
 		// Bind to the new created empty structure object
 		glBindTexture(GL_TEXTURE_2D, *texture);
@@ -420,7 +422,9 @@ BOOL loadGLTexture(GLuint *texture, TCHAR imageRecourceID[])
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		// 64*64, 32*32 ... 1*1
-		gluBuild2DMipmaps(GL_TEXTURE_2D, 3, bmp.bmWidth, bmp.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, bmp.bmBits);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, 3, bmp.bmWidth, bmp.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, bmp.bmBits); 
+		// G_BGR_EXT : yaha pe humne BGR diya hai jabki hum RGB dete the.
+		// So BGR ka matlb he humne bola hai os ko ki Ulti image read krni hai so hum-mein image ulti deni nhi pade gee.
 
 		// Un-Bind 0 denotes unbind
 		glBindTexture(GL_TEXTURE_2D, 0);

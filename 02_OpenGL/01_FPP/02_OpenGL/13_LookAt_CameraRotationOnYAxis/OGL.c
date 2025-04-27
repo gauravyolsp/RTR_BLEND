@@ -43,7 +43,7 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
 // Rotaion Angles
-float anglePyramid = 0.0f;
+//float anglePyramid = 0.0f;
 float angleCube = 0.0f;
 
 // Entry Point Function
@@ -61,6 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	MSG msg;
 	TCHAR szAppName[] = TEXT("RTR6");
 	BOOL bDone = FALSE;
+	int cxScreen;
+	int cyScreen;
 
 	// Code
 	// Create Log File
@@ -84,11 +86,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
-	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+
+	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
+	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
+	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);
@@ -98,8 +105,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		cxScreen,
+		cyScreen,
 		WIN_WIDTH,
 		WIN_HEIGHT,
 		NULL,
@@ -409,7 +416,6 @@ void display(void)
 	// Set to identity matirx
 	glLoadIdentity();
 
-	//gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	//  *********** Pyramid ***********************
 	
@@ -417,7 +423,7 @@ void display(void)
 	glTranslatef(0.0f, 0.0f, -12.0f);
 
 	// Rotation
-	//glRotatef(anglePyramid, 0.0f, 1.0f, 0.0f);
+	glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
 
 	// Triangle drawing code
 	glBegin(GL_TRIANGLES);
@@ -445,7 +451,7 @@ void display(void)
 	glVertex3f(1.0f, -1.0f, -1.0f);
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex3f(-1.0f, -1.0f, -1.0f);
-
+		
 	// Bottom Face
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex3f(0.0f, 1.0f, 0.0f);
@@ -457,16 +463,18 @@ void display(void)
 	glEnd();
 
 	// ********** Cube **************************
+	 
 	// Set to identity matirx
 	glLoadIdentity();
 
+	gluLookAt(0.0f, 0.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	// Rotation
 	//glRotatef(angleCube, 1.0f, 0.0f, 0.0f);
-	glRotatef(angleCube, 0.0f, 1.0f, 0.0f);
+	glRotatef(angleCube, 0.0f, 12.0f, 0.0f);
 	//glRotatef(angleCube, 0.0f, 0.0f, 1.0f);
 
 	// Translate Triangle Backwards by Z (-ve)
-	glTranslatef(1.5f, 0.0f, -5.0f);
+	glTranslatef(0.0f, 0.0f, -5.0f);
 
 	// Scaling
 	glScalef(0.25f, 0.25f, 0.25f);
@@ -533,12 +541,12 @@ void update(void)
 {
 	// code
 
-	anglePyramid = anglePyramid + 0.05f;
+	/*anglePyramid = anglePyramid + 0.05f;
 
 	if (anglePyramid >= 360.0f)
 	{
 		anglePyramid = anglePyramid - 360.0f;
-	}
+	}*/
 
 	angleCube = angleCube + 0.05f;
 

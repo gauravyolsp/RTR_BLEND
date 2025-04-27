@@ -47,6 +47,9 @@ HGLRC ghrc = NULL; // global handle to rendering context
 
 // My Global variables
 float g_XAxis = 0.0f;
+float g_XColor[] = { 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.4f, 0.5450f, 0.9294f, 0.9294f, 0.0980f };
+float g_YColor[] = { 0.0f, 0.6470f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.8039f, 0.2666f, 0.9294f };
+float g_ZColor[] = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.1215f, 0.9294f, 0.8745f };
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -63,12 +66,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	MSG msg;
 	TCHAR szAppName[] = TEXT("RTR6");
 	BOOL bDone = FALSE;
+	int cxScreen;
+	int cyScreen;
 
 	// Code
 	// Create Log File
 	gpFile = fopen(gszLogFileName, "w");
 
-	if(gpFile == NULL)
+	if (gpFile == NULL)
 	{
 		MessageBox(NULL, TEXT("LOG FILE CREATION FAILED !!!"), TEXT("FILE I/O ERROR"), MB_OK);
 		exit(0);
@@ -86,22 +91,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
-	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+
+	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
+	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
+	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, 
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW,
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		cxScreen,
+		cyScreen,
 		WIN_WIDTH,
 		WIN_HEIGHT,
 		NULL,
@@ -406,6 +416,7 @@ void display(void)
 	float radius = 0.03f;
 	for (int iCounter = 0; iCounter < 10; iCounter++)
 	{
+		glColor3f(g_XColor[iCounter], g_YColor[iCounter], g_ZColor[iCounter]);
 		DrawCircle(radius);
 
 		radius += 0.03f;
@@ -422,17 +433,17 @@ void DrawCircle(float radius)
 	float centerX = 0.0f;
 	float centerY = 0.0f;
 
+	glPointSize(2.0f);
+	glBegin(GL_LINE_STRIP);
 	for (float angle = 0.0f; angle < (2 * M_PI); angle += 0.01)
 	{
 		float x = centerX + radius * cos(angle);
 		float y = centerY + radius * sin(angle);
 
-		glPointSize(2.0f);
-		glBegin(GL_POINTS);
-		glColor3f(1.0f, 1.0f, 0.0f);
+		//glColor3f(1.0f, 1.0f, 0.0f);
 		glVertex3f(x, y, 0.0f);
-		glEnd();
 	}
+	glEnd();
 }
 
 void update(void)
