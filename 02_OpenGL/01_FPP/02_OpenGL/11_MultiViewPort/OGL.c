@@ -243,7 +243,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = 0;
 				y = 0;
 				
-				fprintf(gpFile,"\ncase 1, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile,"\ncase 1, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 				
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2, (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
 				break;
@@ -253,7 +253,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = (wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2;
 				y = 0;
 				
-				fprintf(gpFile, "\ncase 2, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 2, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				//resize(wpPrev.rcNormalPosition.right/2, wpPrev.rcNormalPosition.bottom / 2);
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2, (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
@@ -264,7 +264,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = (wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2;
 				y = (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2;
 
-				fprintf(gpFile, "\ncase 3, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 3, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2, (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
 				break;
@@ -274,7 +274,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = 0;
 				y = (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2;
 
-				fprintf(gpFile, "\ncase 4, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 4, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2, (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
 				break;
@@ -283,7 +283,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = 0;
 				y = 0;
 
-				fprintf(gpFile, "\ncase 5, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 5, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2, (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top));
 				break;
@@ -292,7 +292,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = (wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2;
 				y = 0;
 
-				fprintf(gpFile, "\ncase 6, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 6, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2, (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top));
 				break;
@@ -302,7 +302,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = 0;
 				y = (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2;
 
-				fprintf(gpFile, "\ncase 7, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 7, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left), (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
 				break;
@@ -312,19 +312,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = 0;
 				y = 0;
 
-				fprintf(gpFile, "\ncase 8, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 8, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left), (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
 				break;
 			case '9':
 				GetWindowPlacement(ghwnd, &wpPrev);
 
-				x = ((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2) - (WIN_WIDTH / 2);
-				y = ((wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2) - (WIN_HEIGHT / 2);
+				x = (wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2;//((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2) - (WIN_WIDTH / 2);
+				y = (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2;//((wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2) - (WIN_HEIGHT / 2);
 
 				x = x / 2;
 				y = y / 2;
-				/*fprintf(gpFile, "\ncase 9, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);*/
+				fprintf(gpFile, "\ncase 9, x = %d, y = %d\n\n", x, y);
 
 				//resize(cxScreen, cyScreen);
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left) / 2 , (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top) / 2);
@@ -335,7 +335,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				x = 0;
 				y = 0;
 
-				fprintf(gpFile, "\ncase 0, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
+				//fprintf(gpFile, "\ncase 0, left = %d, right = %d, bottom = %d, top = %d\n", wpPrev.rcNormalPosition.left, wpPrev.rcNormalPosition.right, wpPrev.rcNormalPosition.bottom, wpPrev.rcNormalPosition.top);
 
 				resize((wpPrev.rcNormalPosition.right - wpPrev.rcNormalPosition.left), (wpPrev.rcNormalPosition.bottom - wpPrev.rcNormalPosition.top));
 				break;
@@ -478,9 +478,9 @@ void resize(int width, int height)
 	}
 	// set the view port
 	glViewport(x, y, (GLsizei)width, (GLsizei)height);
-	char cData[1024] = {};
+	/*char cData[1024] = {};
 	sprintf(cData, "x = %d, y = %d, width = %d, height = %d\n", x, y, width, height);
-	fprintf(gpFile, cData);
+	fprintf(gpFile, cData);*/
 
 	// Set matrix projection mode
 	glMatrixMode(GL_PROJECTION);
