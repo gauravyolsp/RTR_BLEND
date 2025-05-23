@@ -3,7 +3,7 @@
 
 // CUDA header
 // OpenCL header
-#include<cuda.h>
+#include<CL/opencl.h>
 
 #include"helper_timer.h"
 
@@ -12,7 +12,10 @@
 
 // global variable 
 cl_platform_id oclPlatformID;
-cl_command_id oclDeviceID;
+cl_device_id oclDeviceID;
+
+cl_context oclContext;
+cl_command_queue oclCommandQueue;
 
 cl_program oclProgram;
 cl_kernel oclKernel;
@@ -22,9 +25,9 @@ int* hostB = NULL;
 int* hostC = NULL;
 int* gold = NULL;
 
-int* deviceA = NULL;
-int* deviceB = NULL;
-int* deviceC = NULL;
+cl_mem deviceA = NULL;
+cl_mem deviceB = NULL;
+cl_mem deviceC = NULL;
 
 float timeOnCPU = 0.0f;
 float timeOnGPU = 0.0f;
@@ -36,18 +39,18 @@ const char* oclSourceCode =
 "int row = get_global_id(0);"\
 "int column = get_global_id(1);"\
 
-	"if ((row < numRows) && (column < numBColumns))"\
-	"{"\
-		"int value = 0.0;"\
-		"for (int k = 0;k < numAColumns;k++)"\
-		"{"\
-			"int a = A[row * numAColumns + k];"\
-			"int b = B[k * numBColumns + column];"\
-			"value += a * b;"\
-		"}"\
-		"C[row * numCColumns + column] = value;"\
-	"}"\
+"if ((row < numRows) && (column < numBColumns))"\
+"{"\
+"int value = 0.0;"\
+"for (int k = 0;k < numAColumns;k++)"\
+"{"\
+"int a = A[row * numAColumns + k];"\
+"int b = B[k * numBColumns + column];"\
+"value += a * b;"\
 "}"\
+"C[row * numCColumns + column] = value;"\
+"}"\
+"}";
 
 int main(int args, char* argv[])
 {
@@ -74,7 +77,7 @@ int main(int args, char* argv[])
 	int sizeC = numCRows * numCColumns * sizeof(int);
 	int sizeGold = numGoldRows * numGoldColumns * sizeof(int);
 
-	cl_result result = cudaSuccess;
+	cl_int result;
 
 	// code
 	// host memory Allocation
@@ -127,7 +130,7 @@ int main(int args, char* argv[])
 
 	// get OpenCL supporting platform's ID
 	result = clGetPlatformIDs(1,&oclPlatformID,NULL);
-	if (result != cudaSuccess)
+	if (result != CL_SUCCESS)
 	{
 		printf("clGetPlatformIDs failed. \n");
 		cleanup();
@@ -135,8 +138,8 @@ int main(int args, char* argv[])
 	}
 	
 	// get openCL supporting CPU device's ID
-	result = clGetDeviceIDs(oclPlatformID, CL_DEVICE_TYPE_GPU, 1 & oclDeviceID, NULL);
-	if (result != cudaSuccess)
+	result = clGetDeviceIDs(oclPlatformID, CL_DEVICE_TYPE_GPU, 1, &oclDeviceID, NULL);
+	if (result != CL_SUCCESS)
 	{
 		printf("clGetDeviceIDs failed. \n");
 		cleanup();
@@ -145,7 +148,7 @@ int main(int args, char* argv[])
 
 	// create OPenCL compute context
 	oclContext = clCreateContext(NULL, 1, &oclDeviceID, NULL, NULL, &result);
-	if (result != cudaSuccess)
+	if (result != CL_SUCCESS)
 	{
 		printf("clCreateContext failed. \n");
 		cleanup();
@@ -154,7 +157,7 @@ int main(int args, char* argv[])
 
 	// create command queue
 	oclCommandQueue = clCreateCommandQueue(oclContext, oclDeviceID, 0, &result);
-	if (result != cudaSuccess)
+	if (result != CL_SUCCESS)
 	{
 		printf("clCreateCommandQueue failed. \n");
 		cleanup();
@@ -163,7 +166,7 @@ int main(int args, char* argv[])
 
 	// oclProgram OpenCL program from .c1
 	oclProgram = clCreateProgramWithSource(oclContext, 1, (const char**) &oclSourceCode, NULL,&result);
-	if (result != cudaSuccess)
+	if (result != CL_SUCCESS)
 	{
 		printf("clCreateProgramWithSource failed. \n");
 		cleanup();
@@ -194,7 +197,7 @@ int main(int args, char* argv[])
 	}
 
 	// device memory allocation
-	deviceA = clCreateBuffer(oclContext, CL_MEM_READ_ONLY, size, NULL, &result);
+	deviceA = clCreateBuffer(oclContext, CL_MEM_READ_ONLY, sizeA, NULL, &result);
 	if (result != CL_SUCCESS)
 	{
 		printf("clCreateBuffer() Failed for deviceA : %d \n", result);
@@ -202,7 +205,7 @@ int main(int args, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	deviceB = clCreateBuffer(oclContext, CL_MEM_READ_ONLY, size, NULL, &result);
+	deviceB = clCreateBuffer(oclContext, CL_MEM_READ_ONLY, sizeB, NULL, &result);
 	if (result != CL_SUCCESS)
 	{
 		printf("clCreateBuffer() Failed for deviceB : %d \n", result);
@@ -210,7 +213,7 @@ int main(int args, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	deviceC = clCreateBuffer(oclContext, CL_MEM_READ_ONLY, size, NULL, &result);
+	deviceC = clCreateBuffer(oclContext, CL_MEM_READ_ONLY, sizeC, NULL, &result);
 	if (result != CL_SUCCESS)
 	{
 		printf("clCreateBuffer() Failed for deviceC : %d \n", result);
@@ -282,7 +285,7 @@ int main(int args, char* argv[])
 	}
 	
 	// write above input device buffer to devioce memory
-	result = clEnqueueWriterBuffer(oclCommandQueue, deviceA, CL_FALSE, 0,sizeA,0,NULL,NULL);
+	result = clEnqueueWriteBuffer(oclCommandQueue, deviceA, CL_FALSE, 0,sizeA,hostA,0,NULL,NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clEnqueueWriterBuffer() Failed for 1st input device buffer : %d \n", result);
@@ -290,7 +293,7 @@ int main(int args, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	result = clEnqueueWriterBuffer(oclCommandQueue, deviceB, CL_FALSE, 0, sizeB, 0, NULL, NULL);
+	result = clEnqueueWriteBuffer(oclCommandQueue, deviceB, CL_FALSE, 0, sizeB, hostB, 0, NULL, NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clEnqueueWriterBuffer() Failed for 2nd input device buffer : %d \n", result);
@@ -320,7 +323,7 @@ int main(int args, char* argv[])
 	clFinish(oclCommandQueue);
 
 	// stop timer
-	stdStopTimer(&timer);
+	sdkStopTimer(&timer);
 	timeOnGPU = sdkGetTimerValue(&timer);
 	sdkDeleteTimer(&timer);
 
@@ -345,7 +348,7 @@ int main(int args, char* argv[])
 		int val2 = hostC[i];
 		if (val1 != val2)
 		{
-			bAccuricy = false;
+			bAccuracy = false;
 			breakValue = i;
 			break;
 		}
@@ -447,36 +450,36 @@ void cleanup(void)
 		clReleaseMemObject(deviceA);
 		deviceA = NULL;
 	}
-	if (colKernel)
+	if (oclKernel)
 	{
-		clReleaseMemObject(colKernel);
-		colKernel = NULL;
+		clReleaseKernel(oclKernel);
+		oclKernel = NULL;
 	}
 	if (oclProgram)
 	{
-		clReleaseMemObject(oclProgram);
+		clReleaseProgram(oclProgram);
 		oclProgram = NULL;
 	}
 	if (gold)
 	{
-		clReleaseMemObject(gold);
+		free(gold);
 		gold = NULL;
 	}
 	if (hostC)
 	{
-		clReleaseMemObject(hostC);
+		free(hostC);
 		hostC = NULL;
 	}
 
 	if (hostB)
 	{
-		clReleaseMemObject(hostB);
+		free(hostB);
 		hostB = NULL;
 	}
 
 	if (hostA)
 	{
-		clReleaseMemObject(hostA);
+		free(hostA);
 		hostA = NULL;
 	}
 }

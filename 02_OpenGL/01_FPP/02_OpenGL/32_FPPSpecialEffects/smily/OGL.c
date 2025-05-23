@@ -30,7 +30,7 @@ WINDOWPLACEMENT wpPrev;
 
 // variables related with file I/O
 char gszLogFileName[] = "Log.txt";
-FILE *gpFile = NULL;
+FILE* gpFile = NULL;
 
 // Active window related variables
 BOOL gbActiveWindow = FALSE;
@@ -42,8 +42,8 @@ BOOL gbEscapeKeyIsPressed = FALSE;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
-// My Global variables
-float g_YAxis = 1.0f;
+// Texture related Global variables
+GLuint texture_smiley;
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -85,14 +85,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
-	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
 	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
 	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+
 	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
 	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
 
@@ -121,18 +122,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	// Paint Background of the Window
 	UpdateWindow(hwnd);
 
-	// Message loop
-	/*while (GetMessage(&msg, NULL, 0, 0))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-	*/
-
 	// initialize
 	int result = initialize();
 
-	if(result != 0)
+	if (result != 0)
 	{
 		fprintf(gpFile, "Initialise() Failed !!!\n");
 		DestroyWindow(hwnd);
@@ -142,17 +135,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	{
 		fprintf(gpFile, "Initialise() Completed Successfully\n");
 	}
-	
+
 	// set this window as foreground and active window
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
 
 	// Game Loop
-	while(bDone == FALSE)
+	while (bDone == FALSE)
 	{
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(msg.message == WM_QUIT)
+			if (msg.message == WM_QUIT)
 			{
 				bDone = TRUE;
 			}
@@ -164,9 +157,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		}
 		else
 		{
-			if(gbActiveWindow == TRUE)
+			if (gbActiveWindow == TRUE)
 			{
-				if(gbEscapeKeyIsPressed == TRUE)
+				if (gbEscapeKeyIsPressed == TRUE)
 				{
 					bDone = TRUE;
 				}
@@ -192,59 +185,59 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	void uninitialize(void);
 
 	// Code
-	switch(iMsg)
+	switch (iMsg)
 	{
-		case WM_CREATE:
-			ZeroMemory((void *)&wpPrev, sizeof(WINDOWPLACEMENT));
-			wpPrev.length = sizeof(WINDOWPLACEMENT);
+	case WM_CREATE:
+		ZeroMemory((void*)&wpPrev, sizeof(WINDOWPLACEMENT));
+		wpPrev.length = sizeof(WINDOWPLACEMENT);
 		break;
-		case WM_SETFOCUS:
-			gbActiveWindow = TRUE;
+	case WM_SETFOCUS:
+		gbActiveWindow = TRUE;
 		break;
-		case WM_KILLFOCUS:
-			gbActiveWindow = FALSE;
+	case WM_KILLFOCUS:
+		gbActiveWindow = FALSE;
 		break;
-		case WM_ERASEBKGND:
-			return(0); // flikker free rendering
-		case WM_SIZE:
-			resize(LOWORD(lParam), HIWORD(lParam));
+	case WM_ERASEBKGND:
+		return(0); // flikker free rendering
+	case WM_SIZE:
+		resize(LOWORD(lParam), HIWORD(lParam));
 		break;
-		case WM_KEYDOWN:
-			switch(wParam)
-			{
-				case VK_ESCAPE: // virtual key code 
-					gbEscapeKeyIsPressed = TRUE;
-				break;
-				default:
-				break;
-			}
-		break;
-		case WM_CHAR:
-			switch (wParam)
-			{
-			case 'f':
-			case 'F':
-				if (gbFullScreen == FALSE)
-				{
-					toggleFullScreen();
-					gbFullScreen = TRUE;
-				}
-				else
-				{
-					toggleFullScreen();
-					gbFullScreen = FALSE;
-				}
-				break;
-			}
-		break;
-		case WM_CLOSE:
-			uninitialize();
-		break;
-		case WM_DESTROY:
-			PostQuitMessage(0);
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_ESCAPE: // virtual key code 
+			gbEscapeKeyIsPressed = TRUE;
 			break;
 		default:
 			break;
+		}
+		break;
+	case WM_CHAR:
+		switch (wParam)
+		{
+		case 'f':
+		case 'F':
+			if (gbFullScreen == FALSE)
+			{
+				toggleFullScreen();
+				gbFullScreen = TRUE;
+			}
+			else
+			{
+				toggleFullScreen();
+				gbFullScreen = FALSE;
+			}
+			break;
+		}
+		break;
+	case WM_CLOSE:
+		uninitialize();
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		break;
 	}
 	return(DefWindowProc(hwnd, iMsg, wParam, lParam));
 }
@@ -260,7 +253,7 @@ void toggleFullScreen(void)
 		dwStyle = GetWindowLong(ghwnd, GWL_STYLE);
 		if (dwStyle & WS_OVERLAPPEDWINDOW)
 		{
-			ZeroMemory((void *)&mi, sizeof(MONITORINFO));
+			ZeroMemory((void*)&mi, sizeof(MONITORINFO));
 			mi.cbSize = sizeof(MONITORINFO);
 			if (GetWindowPlacement(ghwnd, &wpPrev) && GetMonitorInfo(MonitorFromWindow(ghwnd, MONITORINFOF_PRIMARY), &mi))
 			{
@@ -284,6 +277,7 @@ int initialize(void)
 	// Function declarations
 	void printGLInfo(void);
 	void resize(int, int);
+	BOOL loadGLTexture(GLuint*, TCHAR[]);
 
 	// variable declarations
 	PIXELFORMATDESCRIPTOR pfd;
@@ -301,6 +295,7 @@ int initialize(void)
 	pfd.cGreenBits = 8;
 	pfd.cBlueBits = 8;
 	pfd.cAlphaBits = 8;
+	pfd.cDepthBits = 32;
 
 	// getDC
 	ghdc = GetDC(ghwnd);
@@ -320,7 +315,7 @@ int initialize(void)
 	}
 
 	// select the pixel format of found index
-	if(SetPixelFormat(ghdc, iPixelFormatIndex, &pfd) == FALSE)
+	if (SetPixelFormat(ghdc, iPixelFormatIndex, &pfd) == FALSE)
 	{
 		fprintf(gpFile, "SetPixelFormat() failed !!!\n");
 		return(-3);
@@ -328,8 +323,8 @@ int initialize(void)
 
 	// create rendering context using hdc, pfd and chosen iPixelFormatIndex
 	ghrc = wglCreateContext(ghdc);
-	
-	if(ghrc == NULL)
+
+	if (ghrc == NULL)
 	{
 		fprintf(gpFile, "wglCreateContext() failed !!!\n");
 		return(-4);
@@ -343,9 +338,31 @@ int initialize(void)
 	}
 
 	printGLInfo();
+
+	// Depth related code
+	glShadeModel(GL_SMOOTH);
+
+	glClearDepth(1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
 	// From here onwards OpenGL code starts
 	// Tell OpenGL to choose the color to clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	// Load Textures
+	if (loadGLTexture(&texture_smiley, MAKEINTRESOURCE(IDBITMAP_SMILEY)) == FALSE)
+	{
+		fprintf(gpFile, "Load Texture Failure for Smiley.bmp");
+		return(-6);
+	}
+
+	// Enable Texturing
+	glEnable(GL_TEXTURE_2D);
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
@@ -362,6 +379,53 @@ void printGLInfo(void)
 	fprintf(gpFile, "OpenGL Renderer : %s\n", glGetString(GL_RENDERER));
 	fprintf(gpFile, "OpenGL Version  : %s\n", glGetString(GL_VERSION));
 	fprintf(gpFile, "******************\n");
+}
+
+BOOL loadGLTexture(GLuint* texture, TCHAR imageRecourceID[])
+{
+	// VARIABLE DECLARATIONS	
+	HBITMAP hBitMap = NULL;
+	BITMAP bmp;
+	BOOL bResult = FALSE;
+
+	// CODE 
+	// Load the bitmap as a image
+	hBitMap = (HBITMAP)LoadImage(GetModuleHandleA(NULL), imageRecourceID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+
+	if (hBitMap)
+	{
+		bResult = TRUE;
+
+		// Get Bitmap structure from the loaded bitmap image
+		GetObject(hBitMap, sizeof(BITMAP), &bmp);
+
+		// Generate OpenGL Texture Object
+		glGenTextures(1, texture);
+
+		// Bind to the new created empty structure object
+		glBindTexture(GL_TEXTURE_2D, *texture);
+
+		// Unpack the image in memory for faster loading
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+		//  Object near to eyes
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//  Object far to eyes
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		// 64*64, 32*32 ... 1*1
+		gluBuild2DMipmaps(GL_TEXTURE_2D, 3, bmp.bmWidth, bmp.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, bmp.bmBits);
+
+		// Un-Bind 0 denotes unbind
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		DeleteObject(hBitMap);
+		hBitMap = NULL;
+	}
+
+	return bResult;
 }
 
 void resize(int width, int height)
@@ -383,7 +447,7 @@ void resize(int width, int height)
 
 	// Do Perspective projection
 	gluPerspective(45.0f, // FOV-Y 
-		(GLfloat) width / (GLfloat)height, // Aspect Ratio 
+		(GLfloat)width / (GLfloat)height, // Aspect Ratio 
 		0.1f, // Near 
 		100.0f); // Far
 }
@@ -392,69 +456,37 @@ void display(void)
 {
 	// code
 	// Clear OpenGl Buffer
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Set Matrix to model view mode
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	// Set to identity matirx
 	glLoadIdentity();
 
-	// Translate Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -0.95f);
+	// Translate Cube Backwards by Z (-ve)
+	glTranslatef(0.0f, 0.0f, -6.0f);
 
-	glLineWidth(5.0f);
-	glBegin(GL_LINES);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(-1.0f, g_YAxis, 0.0f);
-	glVertex3f(1.0f, g_YAxis, 0.0f);
+	glBindTexture(GL_TEXTURE_2D, texture_smiley);
+
+	// Cube drawing code
+	glBegin(GL_QUADS);
+
+	// Cube
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(1.0f, 1.0f, 0.0f);
+	
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(-1.0f, 1.0f, 0.0f);
+	
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, 0.0f);
+	
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(1.0f, -1.0f, 0.0f);
+
 	glEnd();
-	g_YAxis = g_YAxis - 0.02f;
-
-	if (g_YAxis < -1.000001f)
-		g_YAxis = 1.0f;
-
-	//// Line Width
-	//glLineWidth(5.0f);
-
-	//for (int iCounter = 1; iCounter <= 20; iCounter++)
-	//{
-	//	if (iCounter == 1)
-	//	{
-	//		// Line Width
-	//		glLineWidth(5.0f);
-	//		glBegin(GL_LINES);
-	//		glColor3f(1.0f, 0.0f, 0.0f);
-	//		glVertex3f(-1.0f, 0.0f, 0.0f);
-	//		glVertex3f(1.0f, 0.0f, 0.0f);
-	//		glEnd();
-	//		g_YAxis = g_YAxis + 0.02f;
-	//		continue;
-	//	}
-	//	// Line Width
-	//	if (iCounter % 5 == 0)
-	//		glLineWidth(3.0f);
-	//	else
-	//		glLineWidth(1.0f);
-	//	
-	//	// Draw 20 line above center line
-	//	glBegin(GL_LINES);
-	//	glColor3f(0.0f, 0.0f, 1.0f);
-	//	glVertex3f(-1.0f, g_YAxis, 0.0f);
-	//	glVertex3f(1.0f, g_YAxis, 0.0f);
-	//	glEnd();
-	//	
-	//	// Draw 20 line below center line
-	//	glBegin(GL_LINES);
-	//	glColor3f(0.0f, 0.0f, 1.0f);
-	//	glVertex3f(-1.0f, (-1) * g_YAxis, 0.0f);
-	//	glVertex3f(1.0f, (-1) * g_YAxis, 0.0f);
-	//	glEnd();
-
-	//	g_YAxis = g_YAxis + 0.02f;
-	//}
-
-	//g_YAxis = 0.0f;
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Swap the Buffers
 	SwapBuffers(ghdc);
@@ -478,6 +510,12 @@ void uninitialize(void)
 		gbFullScreen = FALSE;
 	}
 
+	if (texture_smiley)
+	{
+		glDeleteTextures(1, &texture_smiley);
+		texture_smiley = 0;
+	}
+
 	// Make HDC as current context by releasing rendering context as current context
 	if (wglGetCurrentContext() == ghrc)
 	{
@@ -490,7 +528,7 @@ void uninitialize(void)
 		wglDeleteContext(ghrc);
 		ghrc = NULL;
 	}
-	
+
 	// release the DC
 	if (ghdc != NULL)
 	{
@@ -506,12 +544,10 @@ void uninitialize(void)
 	}
 
 	// close the file
-	if(gpFile != NULL)
+	if (gpFile != NULL)
 	{
 		fprintf(gpFile, "Program terminated successfully\n");
 		fclose(gpFile);
 		gpFile = NULL;
 	}
 }
-
-//WM_NCCALCSIZE

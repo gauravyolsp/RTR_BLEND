@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<stdlib.h>
 
 // OpenCL header
 #include<CL/opencl.h>
@@ -34,7 +35,7 @@ void printOpenCLDeviceProperties(void)
 	}
 
 	// get GPU device count
-	result = clGetDeviceIDs(ocl_platform_id, &CL_DEVICE_TYPE_GPU,0 ,NULL,&dev_count);
+	result = clGetDeviceIDs(ocl_platform_id,CL_DEVICE_TYPE_GPU,0 ,NULL,&dev_count);
 	if (result != CL_SUCCESS)
 	{
 		printf("clGetDeviceIDs() Failed \n");
@@ -49,7 +50,7 @@ void printOpenCLDeviceProperties(void)
 	{
 		// get platform name
 		clGetPlatformInfo(ocl_platform_id, CL_PLATFORM_NAME, 500, &oclPlatformInfo, NULL);
-		printf("OpenCL Supporting GPU Platform Name : %s \n", oclPlatform);
+		printf("OpenCL Supporting GPU Platform Name : %s \n", oclPlatformInfo);
 
 		// get platform version
 		clGetPlatformInfo(ocl_platform_id, CL_PLATFORM_VERSION, 500, &oclPlatformInfo, NULL);
@@ -75,13 +76,13 @@ void printOpenCLDeviceProperties(void)
 			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_NAME, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);
 			printf("GPU Device Name     : %s \n", ocl_dev_prop);
 
-			clGetDeviceInfo((ocl_device_ids[i], CL_DEVICE_VENDER, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);)
+			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_VENDOR, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);
 			printf("GPU Device Vender     : %s \n", ocl_dev_prop);
 
-			clGetDeviceInfo((ocl_device_ids[i], CL_DRIVER_VERSION, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);)
+			clGetDeviceInfo(ocl_device_ids[i], CL_DRIVER_VERSION, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);
 			printf("GPU Device Dtriver version     : %s \n", ocl_dev_prop);
 
-			clGetDeviceInfo((ocl_device_ids[i], CL_DEVICE_VERSION, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);)
+			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_VERSION, sizeof(ocl_dev_prop), &ocl_dev_prop, NULL);
 			printf("GPU Device OpenCL version     : %s \n", ocl_dev_prop);
 
 			cl_uint clock_frequency;
@@ -109,12 +110,12 @@ void printOpenCLDeviceProperties(void)
 			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(compute_units), &compute_units, NULL);
 			printf("GPU Device number of parallel Processor cores : %u \n", compute_units);
 
-			size_t woritem_dims;
-			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_MAX_WORK_GROUP, sizeof(workgroup_size), &workgroup_size, NULL);
+			size_t workgroup_size;
+			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(workgroup_size), &workgroup_size, NULL);
 			printf("GPU Device work group size : %u \n", (unsigned int)workgroup_size);
 
 			size_t woritem_dims;
-			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_MAX_WORK_ITEM_DIMENTIONS, sizeof(woritem_dims), &woritem_dims, NULL);
+			clGetDeviceInfo(ocl_device_ids[i], CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(woritem_dims), &woritem_dims, NULL);
 			printf("GPU Device work Item Dimentions : %u \n", (unsigned int)woritem_dims);
 
 			size_t woritem_size[3];

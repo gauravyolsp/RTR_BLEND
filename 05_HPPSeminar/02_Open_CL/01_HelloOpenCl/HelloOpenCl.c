@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<stdlib.h>
 
 // OpenCL header
 #include<CL/opencl.h>
@@ -7,11 +8,11 @@
 const int iNumberOfArrayElements = 5;
 
 // openCL variable
-cl_platform_id oclPlatformId;              // internaly STRUCT
-cl_device_id oclDeviceId;                  // internaly STRUCT
+cl_platform_id oclPlatformID;              // internaly STRUCT
+cl_device_id oclDeviceID;                  // internaly STRUCT
 
-cl_context oclContext = NULL;             // give current context
-cl_command_queue hostOutput = NULL; //  
+cl_context oclContext;             // give current context
+cl_command_queue oclCommandQueue; //  
 
 cl_program oclProgram = NULL;                  // to send to kernel
 cl_kernel oclKernel = NULL;
@@ -26,12 +27,12 @@ cl_mem deviceOutput = NULL;
 
 // OpenCL kernel
 const char* oclSourceCode =
-"__kernel void vecAddGPU(__global float *in1,__global float *in2,__global float*out,int len)"\
+"__kernel void HelloOpenCl(__global float *in1,__global float *in2,__global float *out,int len)"\
 "{"\
 "int i = get_global_id(0);"\
 "if(i < len)"\
 "{"\
-"out[i] in1[i] + in2[i];"\
+"out[i] = in1[i]+in2[i];"\
 "}"\
 "}";
 
@@ -52,7 +53,7 @@ int main(void)
 	{
 		printf("Host memory allocation is failed for input1 array. \n");
 		cleanup();
-		exit(EXIT_FAILLURE);
+		exit(EXIT_FAILURE);
 	}
 
 	hostInput2 = (float*)malloc(size);
@@ -60,7 +61,7 @@ int main(void)
 	{
 		printf("Host memory allocation is failed for hostInput2 array. \n");
 		cleanup();
-		exit(EXIT_FAILLURE);
+		exit(EXIT_FAILURE);
 	}
 
 	hostOutput = (float*)malloc(size);
@@ -68,7 +69,7 @@ int main(void)
 	{
 		printf("Host memory allocation is failed for hostOutput array. \n");
 		cleanup();
-		exit(EXIT_FAILLURE);
+		exit(EXIT_FAILURE);
 	}
 
 	// filling values into host arrays
@@ -85,7 +86,7 @@ int main(void)
 	hostInput2[4] = 204.0;
 
 	// get OpenCL supporting platform's ID
-	result = clGetPlatformIDs(1, &ocPlatformID, NULL);
+	result = clGetPlatformIDs(1, &oclPlatformID, NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clGetPlatformIDs() Failed : %d \n", result);
@@ -94,7 +95,7 @@ int main(void)
 	}
 
 	// get OpenCL supporting CPU device ID
-	result = clGetDeviceIDs(oclPlatformjID, CL_DEVICE_TYPE_GPU,1,&oclDeviceID,NULL);
+	result = clGetDeviceIDs(oclPlatformID, CL_DEVICE_TYPE_GPU,1,&oclDeviceID,NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clGetDeviceIDs() Failed : %d \n", result);
@@ -103,7 +104,7 @@ int main(void)
 	}
 
 	// get OpenCL compute context
-	oclContext = clCreateContext(NULL, &oclDeviceID, NULL, NULL, &result);
+	oclContext = clCreateContext(NULL,1, &oclDeviceID, NULL, NULL, &result);
 	if (result != CL_SUCCESS)
 	{
 		printf("clCreateContext() Failed : %d \n", result);
@@ -121,7 +122,7 @@ int main(void)
 	}
 
 	// create openCL program from .cl
-	oclProgram = clCreateProgramWithSource(oclContext, 1, (const char**),&oclSourceCode,NULL &result);
+	oclProgram = clCreateProgramWithSource(oclContext, 1, (const char**)&oclSourceCode,NULL, &result);
 	if (result != CL_SUCCESS)
 	{
 		printf("clCreateProgramWithSource() Failed : %d \n", result);
@@ -134,7 +135,7 @@ int main(void)
 	if (result != CL_SUCCESS)
 	{
 		size_t len;
-		char buffer[248] = { 0 };
+		char buffer[2048] = { 0 };
 
 		clGetProgramBuildInfo(oclProgram, oclDeviceID, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
 		printf("program Build log : %s \n", buffer);
@@ -144,7 +145,7 @@ int main(void)
 	}
 
 	// create openCL kernel by passing kernel function name that we used in .cl file
-	oclKernel = clCreateKernel(oclProgram, "vecAddGPU", &result);
+	oclKernel = clCreateKernel(oclProgram, "HelloOpenCl", &result);
 	if (result != CL_SUCCESS)
 	{
 		printf("clCreateKernel() Failed : %d \n", result);
@@ -187,7 +188,7 @@ int main(void)
 	}
 
 	// set 0 based 0th argument i.e deviceInput2
-	result = clSetKernelArg(oclKernel, 0, sizeof(cl_mem), (void*)&deviceInput2);
+	result = clSetKernelArg(oclKernel, 1, sizeof(cl_mem), (void*)&deviceInput2);
 	if (result != CL_SUCCESS)
 	{
 		printf("clSetKernelArg() Failed for 2nd Argument : %d \n", result);
@@ -196,7 +197,7 @@ int main(void)
 	}
 
 	// set 0 based 0th argument i.e deviceOutput
-	result = clSetKernelArg(oclKernel, 0, sizeof(cl_mem), (void*)&deviceOutput);
+	result = clSetKernelArg(oclKernel, 2, sizeof(cl_mem), (void*)&deviceOutput);
 	if (result != CL_SUCCESS)
 	{
 		printf("clSetKernelArg() Failed for 3rd Argument : %d \n", result);
@@ -214,7 +215,7 @@ int main(void)
 	}
 
 	// write above input device buffer to device memory
-	result = clEnqueueWriterBuffer(oclCommandQueue, deviceInput1, CL_FALSE, 0,size,hostInput1,,NULL,NULL);
+	result = clEnqueueWriteBuffer(oclCommandQueue, deviceInput1, CL_FALSE, 0,size,hostInput1,0,NULL,NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clEnqueueWriterBuffer() Failed for 1st input device buffer : %d \n", result);
@@ -222,7 +223,7 @@ int main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	result = clEnqueueWriterBuffer(oclCommandQueue, deviceInput2, CL_FALSE, 0, size, hostInput1, , NULL, NULL);
+	result = clEnqueueWriteBuffer(oclCommandQueue, deviceInput2, CL_FALSE, 0, size, hostInput1, 0, NULL, NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clEnqueueWriterBuffer() Failed for 1st input device buffer : %d \n", result);
@@ -232,7 +233,8 @@ int main(void)
 
 	// kernel configuration
 	size_t global_size = 5;      // 1-D 5 element array operation
-	result = clEnqueNDRangeKernel(oclCommandQueue, oclKernel, 1, NULL, &global_size, NULL, 0, NULL, NULL);
+	//result = clEnqueueNDRangeKernel(oclCommandQueue, oclKernel, 1, NULL, &globalWorkSize, &localWorkSize, 0, NULL, NULL);
+	result = clEnqueueNDRangeKernel(oclCommandQueue, oclKernel, 1, NULL, &global_size, NULL, 0, NULL, NULL);
 	if (result != CL_SUCCESS)
 	{
 		printf("clEnqueNDRangeKernel() Failed for 1st input device buffer : %d \n", result);
@@ -256,7 +258,7 @@ int main(void)
 	int i;
 	for (i = 0;i < iNumberOfArrayElements;i++)
 	{
-		printf("%f + %f \n", hostInput1[i], hostInput2[i], hostOutput[i]);
+		printf("%f + %f = %f \n", hostInput1[i], hostInput2[i], hostOutput[i]);
 	}
 
 	// cleanup
@@ -312,7 +314,7 @@ void cleanup(void)
 
 	if (hostOutput)
 	{
-		clReleaseMemObject(hostOutput);
+		free(hostOutput);
 		hostOutput = NULL;
 	}
 
