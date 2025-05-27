@@ -302,7 +302,7 @@ int main(int args, char* argv[])
 	printf("Array 1 begin from 0th index %.6f to %d th index %.6f \n", hostInput1[0], iNumberOfArrayElements - 1, hostInput1[iNumberOfArrayElements - 1]);
 	printf("Array 2 begin from 0th index %.6f to %d th index %.6f \n", hostInput2[0], iNumberOfArrayElements - 1, hostInput2[iNumberOfArrayElements - 1]);
 
-	printf("OpenCL kernel global size = %lu and local work size = %lu \n", globalWorkSize, localWorkSize);
+	printf("OpenCL kernel global size = %l and local work size = %l \n", globalWorkSize, localWorkSize);
 
 	printf("Output Array begin from 0th index %.6f to %d th index %.6f \n", hostOutput[0], iNumberOfArrayElements - 1, hostOutput[iNumberOfArrayElements - 1]);
 

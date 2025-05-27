@@ -40,7 +40,7 @@ void PrintCUDADeviceProperties(void)
 			ret_cuda_rt = cudaGetDeviceProperties(&dev_prop, i);
 			if (ret_cuda_rt != cudaSuccess)
 			{
-				printf("%s in %s at line %d \n", cudaGetErrorString(ret_cuda_rt), __FILE__, __FILE__);
+				printf("%s in %s at line %s \n", cudaGetErrorString(ret_cuda_rt), __FILE__, __FILE__);
 				return;
 			}
 			printf("\n");

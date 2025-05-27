@@ -1,0 +1,3 @@
+cls
+
+nvcc -o VecAdd.exe VecAdd.cu

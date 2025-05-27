@@ -290,25 +290,25 @@ void cleanup(void)
 
 	if (oclKernel)
 	{
-		clReleaseMemObject(oclKernel);
+		clReleaseKernel(oclKernel);
 		oclKernel = NULL;
 	}
 
 	if (oclProgram)
 	{
-		clReleaseMemObject(oclProgram);
+		clReleaseProgram(oclProgram);
 		oclProgram = NULL;
 	}
 
 	if (oclCommandQueue)
 	{
-		clReleaseMemObject(oclCommandQueue);
+		clReleaseCommandQueue(oclCommandQueue);
 		oclCommandQueue = NULL;
 	}
 
 	if (oclContext)
 	{
-		clReleaseMemObject(oclContext);
+		clReleaseContext(oclContext);
 		oclContext = NULL;
 	}
 
@@ -320,13 +320,13 @@ void cleanup(void)
 
 	if (hostInput2)
 	{
-		clReleaseMemObject(hostInput2);
+		free(hostInput2);
 		hostInput2 = NULL;
 	}
 
 	if (hostInput1)
 	{
-		clReleaseMemObject(hostInput1);
+		free(hostInput1);
 		hostInput1 = NULL;
 	}
 }
