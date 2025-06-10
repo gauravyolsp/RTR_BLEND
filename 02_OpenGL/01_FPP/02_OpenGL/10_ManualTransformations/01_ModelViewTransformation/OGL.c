@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define _USE_MATH_DEFINES 1
+#include <math.h>
+
 // OpenGl related header files
 #include <gl/GL.h>
 #include <gl/GLU.h>
@@ -30,7 +33,7 @@ WINDOWPLACEMENT wpPrev;
 
 // variables related with file I/O
 char gszLogFileName[] = "Log.txt";
-FILE *gpFile = NULL;
+FILE* gpFile = NULL;
 
 // Active window related variables
 BOOL gbActiveWindow = FALSE;
@@ -41,6 +44,17 @@ BOOL gbEscapeKeyIsPressed = FALSE;
 // OpenGl related Global variables
 HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
+
+// Rotaion Angles
+float angleCube = 0.0f;
+
+//
+float identityMatrix[16];
+float translateMatrix[16];
+float scaleMatrix[16];
+float rotationMatrixX[16];
+float rotationMatrixY[16];
+float rotationMatrixZ[16];
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -62,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	// Create Log File
 	gpFile = fopen(gszLogFileName, "w");
 
-	if(gpFile == NULL)
+	if (gpFile == NULL)
 	{
 		MessageBox(NULL, TEXT("LOG FILE CREATION FAILED !!!"), TEXT("FILE I/O ERROR"), MB_OK);
 		exit(0);
@@ -90,7 +104,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, 
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW,
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
@@ -122,7 +136,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	// initialize
 	int result = initialize();
 
-	if(result != 0)
+	if (result != 0)
 	{
 		fprintf(gpFile, "Initialise() Failed !!!\n");
 		DestroyWindow(hwnd);
@@ -132,17 +146,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	{
 		fprintf(gpFile, "Initialise() Completed Successfully\n");
 	}
-	
+
 	// set this window as foreground and active window
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
 
 	// Game Loop
-	while(bDone == FALSE)
+	while (bDone == FALSE)
 	{
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(msg.message == WM_QUIT)
+			if (msg.message == WM_QUIT)
 			{
 				bDone = TRUE;
 			}
@@ -154,9 +168,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		}
 		else
 		{
-			if(gbActiveWindow == TRUE)
+			if (gbActiveWindow == TRUE)
 			{
-				if(gbEscapeKeyIsPressed == TRUE)
+				if (gbEscapeKeyIsPressed == TRUE)
 				{
 					bDone = TRUE;
 				}
@@ -182,59 +196,59 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	void uninitialize(void);
 
 	// Code
-	switch(iMsg)
+	switch (iMsg)
 	{
-		case WM_CREATE:
-			ZeroMemory((void *)&wpPrev, sizeof(WINDOWPLACEMENT));
-			wpPrev.length = sizeof(WINDOWPLACEMENT);
+	case WM_CREATE:
+		ZeroMemory((void*)&wpPrev, sizeof(WINDOWPLACEMENT));
+		wpPrev.length = sizeof(WINDOWPLACEMENT);
 		break;
-		case WM_SETFOCUS:
-			gbActiveWindow = TRUE;
+	case WM_SETFOCUS:
+		gbActiveWindow = TRUE;
 		break;
-		case WM_KILLFOCUS:
-			gbActiveWindow = FALSE;
+	case WM_KILLFOCUS:
+		gbActiveWindow = FALSE;
 		break;
-		case WM_ERASEBKGND:
-			return(0); // flikker free rendering
-		case WM_SIZE:
-			resize(LOWORD(lParam), HIWORD(lParam));
+	case WM_ERASEBKGND:
+		return(0); // flikker free rendering
+	case WM_SIZE:
+		resize(LOWORD(lParam), HIWORD(lParam));
 		break;
-		case WM_KEYDOWN:
-			switch(wParam)
-			{
-				case VK_ESCAPE: // virtual key code 
-					gbEscapeKeyIsPressed = TRUE;
-				break;
-				default:
-				break;
-			}
-		break;
-		case WM_CHAR:
-			switch (wParam)
-			{
-			case 'f':
-			case 'F':
-				if (gbFullScreen == FALSE)
-				{
-					toggleFullScreen();
-					gbFullScreen = TRUE;
-				}
-				else
-				{
-					toggleFullScreen();
-					gbFullScreen = FALSE;
-				}
-				break;
-			}
-		break;
-		case WM_CLOSE:
-			uninitialize();
-		break;
-		case WM_DESTROY:
-			PostQuitMessage(0);
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_ESCAPE: // virtual key code 
+			gbEscapeKeyIsPressed = TRUE;
 			break;
 		default:
 			break;
+		}
+		break;
+	case WM_CHAR:
+		switch (wParam)
+		{
+		case 'f':
+		case 'F':
+			if (gbFullScreen == FALSE)
+			{
+				toggleFullScreen();
+				gbFullScreen = TRUE;
+			}
+			else
+			{
+				toggleFullScreen();
+				gbFullScreen = FALSE;
+			}
+			break;
+		}
+		break;
+	case WM_CLOSE:
+		uninitialize();
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		break;
 	}
 	return(DefWindowProc(hwnd, iMsg, wParam, lParam));
 }
@@ -250,7 +264,7 @@ void toggleFullScreen(void)
 		dwStyle = GetWindowLong(ghwnd, GWL_STYLE);
 		if (dwStyle & WS_OVERLAPPEDWINDOW)
 		{
-			ZeroMemory((void *)&mi, sizeof(MONITORINFO));
+			ZeroMemory((void*)&mi, sizeof(MONITORINFO));
 			mi.cbSize = sizeof(MONITORINFO);
 			if (GetWindowPlacement(ghwnd, &wpPrev) && GetMonitorInfo(MonitorFromWindow(ghwnd, MONITORINFOF_PRIMARY), &mi))
 			{
@@ -291,6 +305,7 @@ int initialize(void)
 	pfd.cGreenBits = 8;
 	pfd.cBlueBits = 8;
 	pfd.cAlphaBits = 8;
+	pfd.cDepthBits = 32;
 
 	// getDC
 	ghdc = GetDC(ghwnd);
@@ -310,7 +325,7 @@ int initialize(void)
 	}
 
 	// select the pixel format of found index
-	if(SetPixelFormat(ghdc, iPixelFormatIndex, &pfd) == FALSE)
+	if (SetPixelFormat(ghdc, iPixelFormatIndex, &pfd) == FALSE)
 	{
 		fprintf(gpFile, "SetPixelFormat() failed !!!\n");
 		return(-3);
@@ -318,8 +333,8 @@ int initialize(void)
 
 	// create rendering context using hdc, pfd and chosen iPixelFormatIndex
 	ghrc = wglCreateContext(ghdc);
-	
-	if(ghrc == NULL)
+
+	if (ghrc == NULL)
 	{
 		fprintf(gpFile, "wglCreateContext() failed !!!\n");
 		return(-4);
@@ -333,9 +348,76 @@ int initialize(void)
 	}
 
 	printGLInfo();
+
+	// Depth related code
+	glShadeModel(GL_SMOOTH);
+
+	glClearDepth(1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
 	// From here onwards OpenGL code starts
 	// Tell OpenGL to choose the color to clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	// define matrices
+	// identity matrix
+	identityMatrix[0] = 1.0f;
+	identityMatrix[1] = 0.0f;
+	identityMatrix[2] = 0.0f;
+	identityMatrix[3] = 0.0f;
+	identityMatrix[4] = 0.0f;
+	identityMatrix[5] = 1.0f;
+	identityMatrix[6] = 0.0f;
+	identityMatrix[7] = 0.0f;
+	identityMatrix[8] = 0.0f;
+	identityMatrix[9] = 0.0f;
+	identityMatrix[10] = 1.0f;
+	identityMatrix[11] = 0.0f;
+	identityMatrix[12] = 0.0f;
+	identityMatrix[13] = 0.0f;
+	identityMatrix[14] = 0.0f;
+	identityMatrix[15] = 1.0f;
+
+	// Translation Matrix
+	translateMatrix[0] = 1.0f;
+	translateMatrix[1] = 0.0f;
+	translateMatrix[2] = 0.0f;
+	translateMatrix[3] = 0.0f;
+	translateMatrix[4] = 0.0f;
+	translateMatrix[5] = 1.0f;
+	translateMatrix[6] = 0.0f;
+	translateMatrix[7] = 0.0f;
+	translateMatrix[8] = 0.0f;
+	translateMatrix[9] = 0.0f;
+	translateMatrix[10] = 1.0f;
+	translateMatrix[11] = 0.0f;
+	translateMatrix[12] = 0.0f; // glTranslateMatrix ka X axis
+	translateMatrix[13] = 0.0f; // glTranslateMatrix ka Y axis
+	translateMatrix[14] = -6.0f; // glTranslateMatrix ka Z axis
+	translateMatrix[15] = 1.0f;
+
+	// Scale Matrix
+	scaleMatrix[0] = 0.75f;
+	scaleMatrix[1] = 0.0f;
+	scaleMatrix[2] = 0.0f;
+	scaleMatrix[3] = 0.0f;
+	scaleMatrix[4] = 0.0f;
+	scaleMatrix[5] = 0.75f;
+	scaleMatrix[6] = 0.0f;
+	scaleMatrix[7] = 0.0f;
+	scaleMatrix[8] = 0.0f;
+	scaleMatrix[9] = 0.0f;
+	scaleMatrix[10] = 0.75f;
+	scaleMatrix[11] = 0.0f;
+	scaleMatrix[12] = 0.0f;
+	scaleMatrix[13] = 0.0f;
+	scaleMatrix[14] = 0.0f;
+	scaleMatrix[15] = 1.0f;
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
@@ -373,39 +455,151 @@ void resize(int width, int height)
 
 	// Do Perspective projection
 	gluPerspective(45.0f, // FOV-Y 
-		(GLfloat) width / (GLfloat)height, // Aspect Ratio 
+		(GLfloat)width / (GLfloat)height, // Aspect Ratio 
 		0.1f, // Near 
 		100.0f); // Far
 }
 
 void display(void)
 {
+	// variable declaration
+	float angle = 0.0f;
+
 	// code
 	// Clear OpenGl Buffer
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// TRIANGLE
 
 	// Set Matrix to model view mode
 	glMatrixMode(GL_MODELVIEW);
-	
-	// Set to identity matirx
-	glLoadIdentity();
 
-	// Transla7te Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -6.0f);
+	// Set to identity matirx
+	//glLoadIdentity();
+	glLoadMatrixf(identityMatrix);
+
+	// Translate Triangle Backwards by Z (-ve)
+	//glTranslatef(0.0f, 0.0f, -6.0f);
+	glMultMatrixf(translateMatrix);
+	
+	// Scaling
+	// glscalef(0.75f, 0.75f, 0.75f);
+	glMultMatrixf(scaleMatrix);
+
+	// Rotation
+	//glRotatef(angleCube, 1.0f, 0.0f, 0.0f);
+	//glRotatef(angleCube, 0.0f, 1.0f, 0.0f);
+	//glRotatef(angleCube, 0.0f, 0.0f, 1.0f);
+	
+	angle = angleCube * (M_PI/180.0f);
+	// rotation matrix X
+	rotationMatrixX[0] = 1.0f;
+	rotationMatrixX[1] = 0.0f;
+	rotationMatrixX[2] = 0.0f;
+	rotationMatrixX[3] = 0.0f;
+	rotationMatrixX[4] = 0.0f;
+	rotationMatrixX[5] = cos(angle);
+	rotationMatrixX[6] = sin(angle);
+	rotationMatrixX[7] = 0.0f;
+	rotationMatrixX[8] = 0.0f;
+	rotationMatrixX[9] = -sin(angle);
+	rotationMatrixX[10] = cos(angle);
+	rotationMatrixX[11] = 0.0f;
+	rotationMatrixX[12] = 0.0f;
+	rotationMatrixX[13] = 0.0f;
+	rotationMatrixX[14] = 0.0f;
+	rotationMatrixX[15] = 1.0f;
+	glMultMatrixf(rotationMatrixX);
+
+	// rotation martix Y
+	rotationMatrixY[0] = cos(angle);
+	rotationMatrixY[1] = 0.0f;
+	rotationMatrixY[2] = -sin(angle);
+	rotationMatrixY[3] = 0.0f;
+	rotationMatrixY[4] = 0.0f;
+	rotationMatrixY[5] = 1.0f;
+	rotationMatrixY[6] = 0.0f;
+	rotationMatrixY[7] = 0.0f;
+	rotationMatrixY[8] = sin(angle);
+	rotationMatrixY[9] = 0.0f;
+	rotationMatrixY[10] = cos(angle);
+	rotationMatrixY[11] = 0.0f;
+	rotationMatrixY[12] = 0.0f;
+	rotationMatrixY[13] = 0.0f;
+	rotationMatrixY[14] = 0.0f;
+	rotationMatrixY[15] = 1.0f;
+	glMultMatrixf(rotationMatrixY);
+
+	// rotation matrix Z
+	rotationMatrixZ[0] = cos(angle);
+	rotationMatrixZ[1] = sin(angle);
+	rotationMatrixZ[2] = 0.0f;
+	rotationMatrixZ[3] = 0.0f;
+	rotationMatrixZ[4] = -sin(angle);
+	rotationMatrixZ[5] = cos(angle);
+	rotationMatrixZ[6] = 0.0f;
+	rotationMatrixZ[7] = 0.0f;
+	rotationMatrixZ[8] = 0.0f;
+	rotationMatrixZ[9] = 0.0f;
+	rotationMatrixZ[10] = 1.0f;
+	rotationMatrixZ[11] = 0.0f;
+	rotationMatrixZ[12] = 0.0f;
+	rotationMatrixZ[13] = 0.0f;
+	rotationMatrixZ[14] = 0.0f;
+	rotationMatrixZ[15] = 1.0f;
+	glMultMatrixf(rotationMatrixZ);
 
 	// Triangle drawing code
-	glBegin(GL_TRIANGLES);
-	
-	//top
+	glBegin(GL_QUADS);
+
+	// Front Face
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-	// left bottom
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f);
-	// right bottom
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f);
 	
+	glVertex3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+
+	// Right Face
+	glColor3f(0.0f, 1.0f, 0.0f);
+	
+	glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
+
+	// Back Face
+	glColor3f(0.0f, 0.0f, 1.0f);
+	
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+
+	// Left Face
+	glColor3f(0.0f, 1.0f, 1.0f);
+
+	glVertex3f(-1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+
+	// Top Face
+	glColor3f(1.0f, 0.0f, 1.0f);
+
+	glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, 1.0f, 1.0f);
+	glVertex3f(1.0f, 1.0f, 1.0f);
+
+	// Bottom Face
+	glColor3f(1.0f, 1.0f, 0.0f);
+
+	glVertex3f(1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+
 	glEnd();
 
 	// Swap the Buffers
@@ -415,6 +609,12 @@ void display(void)
 void update(void)
 {
 	// code
+	angleCube = angleCube + 0.5f;
+
+	if (angleCube >= 360.0f)
+	{
+		angleCube = angleCube - 360.0f;
+	}
 }
 
 void uninitialize(void)
@@ -442,7 +642,7 @@ void uninitialize(void)
 		wglDeleteContext(ghrc);
 		ghrc = NULL;
 	}
-	
+
 	// release the DC
 	if (ghdc != NULL)
 	{
@@ -458,12 +658,10 @@ void uninitialize(void)
 	}
 
 	// close the file
-	if(gpFile != NULL)
+	if (gpFile != NULL)
 	{
 		fprintf(gpFile, "Program terminated successfully\n");
 		fclose(gpFile);
 		gpFile = NULL;
 	}
 }
-
-//WM_NCCALCSIZE
