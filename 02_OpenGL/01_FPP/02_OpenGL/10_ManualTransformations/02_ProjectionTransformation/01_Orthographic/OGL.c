@@ -64,6 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	MSG msg;
 	TCHAR szAppName[] = TEXT("RTR6");
 	BOOL bDone = FALSE;
+	int cxScreen;
+	int cyScreen;
 
 	// Code
 	// Create Log File
@@ -87,17 +89,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
-	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
+
+	cxScreen = GetSystemMetrics(SM_CXSCREEN);		// width
+	cyScreen = GetSystemMetrics(SM_CYSCREEN);		// Height
+	cxScreen = (cxScreen / 2) - (WIN_WIDTH / 2);
+	cyScreen = (cyScreen / 2) - (WIN_HEIGHT / 2);
 
 	// Registration of Window Class
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, 
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW,
 		szAppName,
 		TEXT("Gaurav Kumar"),
 		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
