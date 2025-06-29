@@ -31,3 +31,5 @@ Release_x86/
 .obj
 .DS_Store
 .pdf
+.txt
+.res

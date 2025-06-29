@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
+// Header file for Sound
+#include <Mmsystem.h>
 
 #define _USE_MATH_DEFINES 1
 #include <math.h>
@@ -372,6 +374,8 @@ int initialize(void)
 	// From here onwards OpenGL code starts
 	// Tell OpenGL to choose the color to clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	
+	PlaySound("C:\\GauravProjectRTR_6.0\\GauravProjectRTR_6.0\\RTR_BLEND\\02_OpenGL\\01_FPP\\02_OpenGL\\25_DynamicDeathlyHallows\\Harry-Poter\\harry_potter_theme.wav", NULL, SND_LOOP | SND_ASYNC);
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
