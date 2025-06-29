@@ -43,7 +43,7 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
 // My Global variables
-float g_XAxis = 0.0f;
+float g_XAxis = 1.0f;
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -401,50 +401,49 @@ void display(void)
 	glLoadIdentity();
 
 	// Translate Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -1.05f);
+	glTranslatef(1.0f, 0.0f, -3.1f);
 
 	//// Line Width
 	//glLineWidth(5.0f);
 
-	for (int iCounter = 1; iCounter <= 20; iCounter++)
+	BOOL bIsBigLine = FALSE;
+	for (int iCounter = 0; iCounter <= 40; iCounter++)
 	{
-		if (iCounter == 1)
+		if (iCounter == 0 || iCounter == 5 || iCounter == 10 || iCounter == 15 || iCounter == 20 || iCounter == 25 || iCounter == 30 || iCounter == 35 || iCounter == 40)
 		{
-			// Line Width
+			bIsBigLine = TRUE;
 			glLineWidth(5.0f);
-			glBegin(GL_LINES);
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex3f(0.0f, -1.0f, 0.0f);
-			glVertex3f(0.0f, 1.0f, 0.0f);
-			glEnd();
-			g_XAxis = g_XAxis + 0.035f;
-			continue;
 		}
 
-		// Line Width
-		if (iCounter % 5 == 0)
-			glLineWidth(3.0f);
-		else
+		if (iCounter == 20)
+		{
+			glBegin(GL_LINES);
+			glColor3f(1.0f, 0.0f, 0.0f);
+			//glLineWidth(5.0f);
+			glVertex2f(g_XAxis, 1.5f);
+			glVertex2f(g_XAxis, -1.5f);
+			glEnd();
+			//fprintf(gpFile, "yAxis = %f\n",g_XAxis);
+			g_XAxis = g_XAxis - 0.1f;
+			bIsBigLine = FALSE;
+			continue;
+		}
+		else if (!bIsBigLine)
+		{
 			glLineWidth(1.0f);
-		
-		// Draw 20 line above center line
-		glBegin(GL_LINES);
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex3f(g_XAxis, -1.0f, 0.0f);
-		glVertex3f(g_XAxis, 1.0, 0.0f);
-		glEnd();
-		
-		// Draw 20 line below center line
-		glBegin(GL_LINES);
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex3f((-1) * g_XAxis, -1.0f, 0.0f);
-		glVertex3f((-1) * g_XAxis, 1.0f, 0.0f);
-		glEnd();
+			glColor3f(0.0f, 0.0f, 1.0f);
+		}
 
-		g_XAxis = g_XAxis + 0.035f;
+		bIsBigLine = FALSE;
+		glBegin(GL_LINES);
+		glVertex2f(g_XAxis, 1.5);
+		glVertex2f(g_XAxis , -1.5f);
+		glEnd();
+		//fprintf(gpFile, "yAxis = %f\n",g_XAxis);
+		g_XAxis = g_XAxis - 0.1f;
 	}
 
-	g_XAxis = 0.0f;
+	g_XAxis = 1.0f;
 	// Swap the Buffers
 	SwapBuffers(ghdc);
 }
@@ -502,5 +501,3 @@ void uninitialize(void)
 		gpFile = NULL;
 	}
 }
-
-//WM_NCCALCSIZE

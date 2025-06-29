@@ -5,14 +5,12 @@
 
 // OpenGl related header files
 #include <gl/GL.h>
-#include <gl/GLU.h>
 
 // User defined header file
 #include "OGL.h"
 
 // OpenGl related libraries
 #pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "GLU32.lib")
 
 // Macros 
 #define WIN_WIDTH 800
@@ -41,6 +39,15 @@ BOOL gbEscapeKeyIsPressed = FALSE;
 // OpenGl related Global variables
 HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
+
+// My Global Variable for ortho maratix
+float right = 0.0f;
+float left = 0.0f;
+float bottom = 0.0f;
+float top = 0.0f;
+float nearr = 0.0f;
+float farr = 0.0f;
+float orthoMatrix[16] = {0};
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -371,11 +378,75 @@ void resize(int width, int height)
 	// Set to identity matrix
 	glLoadIdentity();
 
-	// Do Perspective projection
-	gluPerspective(45.0f, // FOV-Y 
-		(GLfloat) width / (GLfloat)height, // Aspect Ratio 
-		0.1f, // Near 
-		100.0f); // Far
+	// Do orthographic projection
+	if (width <= height)
+	{
+		right = 100.0f;
+		left = -100.0f;
+		bottom = (-100.0f * (height / width));
+		top = (100.0f * (height / width));
+		nearr = -100.0f;
+		farr = 100.0f;
+
+		orthoMatrix[0]  = (2.0f / (right - left));
+		orthoMatrix[1]  = 0.0f;
+		orthoMatrix[2]  = 0.0f;
+		orthoMatrix[3]  = 0.0f;
+		orthoMatrix[4]  = 0.0f;
+		orthoMatrix[5]  = (2.0f / (top - bottom));
+		orthoMatrix[6]  = 0.0f;
+		orthoMatrix[7]  = 0.0f;
+		orthoMatrix[8]  = 0.0f;
+		orthoMatrix[9]  = 0.0f;
+		orthoMatrix[10] = -(2.0f / (farr - nearr));
+		orthoMatrix[11] = 0.0f;
+		orthoMatrix[12] = -((right + left) / (right - left));
+		orthoMatrix[13] = -((top + bottom) / (right - bottom));
+		orthoMatrix[14] = -((farr + nearr) / (farr - nearr));
+		orthoMatrix[15] = 1.0f;
+
+		//glOrtho(-100.0f, //  left
+		//		100.0f, // right
+		//		(-100.0f * ((GLfloat)height / (GLfloat)width)), // bottom
+		//		(100.0f * ((GLfloat)height / (GLfloat)width)), // top
+		//		-100.0f,  // near
+		//		100.0f); // far
+	}
+	else
+	{
+		left = (-100.0f * (width / height));
+		right = (100.0f * (width / height));
+		bottom = -100.0f;
+		top = 100.0f;
+		nearr = -100.0f;
+		farr = 100.0f;
+
+		orthoMatrix[0] = (2.0f / (right - left));
+		orthoMatrix[1] = 0.0f;
+		orthoMatrix[2] = 0.0f;
+		orthoMatrix[3] = 0.0f;
+		orthoMatrix[4] = 0.0f;
+		orthoMatrix[5] = (2.0f / (top - bottom));
+		orthoMatrix[6] = 0.0f;
+		orthoMatrix[7] = 0.0f;
+		orthoMatrix[8] = 0.0f;
+		orthoMatrix[9] = 0.0f;
+		orthoMatrix[10] = -(2.0f / (farr - nearr));
+		orthoMatrix[11] = 0.0f;
+		orthoMatrix[12] = -((right + left) / (right - left));
+		orthoMatrix[13] = -((top + bottom) / (right - bottom));
+		orthoMatrix[14] = -((farr + nearr) / (farr - nearr));
+		orthoMatrix[15] = 1.0f;
+
+		//glOrtho((-100.0f * ((GLfloat)width / (GLfloat)height)), // left
+		//	(100.0f * ((GLfloat)width / (GLfloat)height)), // right
+		//	-100.0f, // bottom
+		//	100.0f, // top
+		//	-100.0f, // near
+		//	100.0f); // far
+	}
+
+	glMultMatrixf(orthoMatrix);
 }
 
 void display(void)
@@ -386,25 +457,19 @@ void display(void)
 
 	// Set Matrix to model view mode
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	// Set to identity matirx
 	glLoadIdentity();
-
-	// Transla7te Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -6.0f);
 
 	// Triangle drawing code
 	glBegin(GL_TRIANGLES);
 	
 	//top
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(0.0f, 50.0f, 0.0f);
 	// left bottom
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f);
+	glVertex3f(-50.0f, -50.0f, 0.0f);
 	// right bottom
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f);
+	glVertex3f(50.0f, -50.0f, 0.0f);
 	
 	glEnd();
 

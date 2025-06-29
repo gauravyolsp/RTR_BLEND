@@ -43,7 +43,7 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL; // global handle to rendering context
 
 // My Global variables
-float g_YAxis = 1.0f;
+float g_YAxis = 2.4f;
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -401,61 +401,49 @@ void display(void)
 	glLoadIdentity();
 
 	// Translate Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -0.95f);
-
-	glLineWidth(5.0f);
-	glBegin(GL_LINES);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(-1.0f, g_YAxis, 0.0f);
-	glVertex3f(1.0f, g_YAxis, 0.0f);
-	glEnd();
-	g_YAxis = g_YAxis - 0.02f;
-
-	if (g_YAxis < -1.000001f)
-		g_YAxis = 1.0f;
+	glTranslatef(0.0f, 0.0f, -6.0f);
 
 	//// Line Width
 	//glLineWidth(5.0f);
 
-	//for (int iCounter = 1; iCounter <= 20; iCounter++)
-	//{
-	//	if (iCounter == 1)
-	//	{
-	//		// Line Width
-	//		glLineWidth(5.0f);
-	//		glBegin(GL_LINES);
-	//		glColor3f(1.0f, 0.0f, 0.0f);
-	//		glVertex3f(-1.0f, 0.0f, 0.0f);
-	//		glVertex3f(1.0f, 0.0f, 0.0f);
-	//		glEnd();
-	//		g_YAxis = g_YAxis + 0.02f;
-	//		continue;
-	//	}
-	//	// Line Width
-	//	if (iCounter % 5 == 0)
-	//		glLineWidth(3.0f);
-	//	else
-	//		glLineWidth(1.0f);
-	//	
-	//	// Draw 20 line above center line
-	//	glBegin(GL_LINES);
-	//	glColor3f(0.0f, 0.0f, 1.0f);
-	//	glVertex3f(-1.0f, g_YAxis, 0.0f);
-	//	glVertex3f(1.0f, g_YAxis, 0.0f);
-	//	glEnd();
-	//	
-	//	// Draw 20 line below center line
-	//	glBegin(GL_LINES);
-	//	glColor3f(0.0f, 0.0f, 1.0f);
-	//	glVertex3f(-1.0f, (-1) * g_YAxis, 0.0f);
-	//	glVertex3f(1.0f, (-1) * g_YAxis, 0.0f);
-	//	glEnd();
+	BOOL bIsBigLine = FALSE;
+	for (int iCounter = 0; iCounter <= 40; iCounter++)
+	{
+		if (iCounter == 0 || iCounter == 5 || iCounter == 10 || iCounter == 15 || iCounter == 20 || iCounter == 25 || iCounter == 30 || iCounter == 35 || iCounter == 40)
+		{
+			//glColor3f(0.0f, 0.0f, 1.0f);
+			//fprintf(gpFile, "iCounter = %d\n", iCounter);
+			bIsBigLine = TRUE;
+			glLineWidth(5.0f);
+		}
+		if (iCounter == 20)
+		{
+			glBegin(GL_LINES);
+				glColor3f(1.0f, 0.0f, 0.0f);
+				//glLineWidth(5.0f);
+				glVertex2f(-4.5f, g_YAxis);
+				glVertex2f(4.5f, g_YAxis);
+			glEnd();
+			//fprintf(gpFile, "yAxis = %f\n",g_YAxis);
+			g_YAxis = g_YAxis - 0.12f;
+			bIsBigLine = FALSE;
+			continue;
+		}
+		else if(!bIsBigLine )
+		{
+			glLineWidth(1.0f);
+			glColor3f(0.0f, 0.0f, 1.0f);
+		}
 
-	//	g_YAxis = g_YAxis + 0.02f;
-	//}
-
-	//g_YAxis = 0.0f;
-
+		bIsBigLine = FALSE;
+		glBegin(GL_LINES);
+			glVertex2f(-4.5f, g_YAxis);
+			glVertex2f(4.5, g_YAxis);
+		glEnd();
+		//fprintf(gpFile, "yAxis = %f\n",g_YAxis);
+		g_YAxis = g_YAxis - 0.12f;
+	}
+	g_YAxis = 2.4f;
 	// Swap the Buffers
 	SwapBuffers(ghdc);
 }

@@ -417,14 +417,14 @@ void display(void)
 	glLoadIdentity();
 
 	// Transla7te Triangle Backwards by Z (-ve)
-	glTranslatef(0.0f, 0.0f, -2.0f);
+	glTranslatef(0.1f, -0.3f, -2.0f);
 
 	// BHARAT
 	B();
 	H();
-	/*A();
+	A();
 	R();
-	A1();*/
+	A1();
 	T();
 
 	// Swap the Buffers
@@ -493,101 +493,62 @@ void B(void)
 	// Line 1
 
 	glColor3f(o[0], o[1], o[2]);
-	glVertex3f(-1.0f, 0.6f, 0.0f);
-		
-	//glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-1.0f, 0.35f, 0.0f);
-		
-	//glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-0.95f, 0.35f, 0.0f);
-
-	//glColor3f(o[0], o[1], o[2]);
-	glVertex3f(-0.95f, 0.6f, 0.0f);
-	glEnd();
-	
-	glBegin(GL_QUADS);
-
+	glVertex3f(-1.0f, 0.55f, 0.0f);
 	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-1.0f, 0.35f, 0.0f);
-
-	//glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-1.0f, 0.2f, 0.0f);
-
-	//glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-0.95f, 0.2f, 0.0f);
-
-	//glColor3f(o[0], o[1], o[2]);
 	glVertex3f(-0.95f, 0.35f, 0.0f);
-	glEnd();
-
-	glBegin(GL_QUADS);
-
-	glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-1.0f, 0.2f, 0.0f);
-
-	//glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-1.0f, 0.0, 0.0f);
-
-	//glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-0.95f, 0.0f, 0.0f);
-
-	//glColor3f(o[0], o[1], o[2]);
-	glVertex3f(-0.95f, 0.2f, 0.0f);
-	glEnd();
-
-
-	glBegin(GL_QUADS);
 	glColor3f(o[0], o[1], o[2]);
-
-	glVertex3f(-0.95f, 0.6f, 0.0f);
 	glVertex3f(-0.95f, 0.55f, 0.0f);
+	
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-1.0f, 0.35f, 0.0f);
+	glVertex3f(-1.0f, 0.2f, 0.0f);
+	glVertex3f(-0.95f, 0.2f, 0.0f);
+	glVertex3f(-0.95f, 0.35f, 0.0f);
+
+	glVertex3f(-1.0f, 0.2f, 0.0f);
+	glColor3f(g[0], g[1], g[2]);
+	glVertex3f(-1.0f, 0.05, 0.0f);
+	glVertex3f(-0.95f, 0.05f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-0.95f, 0.2f, 0.0f);
+
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(-1.0f, 0.6f, 0.0f);
+	glVertex3f(-1.0f, 0.55f, 0.0f);
 	glVertex3f(-0.85f, 0.55f, 0.0f);
 	glVertex3f(-0.8f, 0.6f, 0.0f);
-	glEnd();
-	
 
-	glBegin(GL_QUADS);
 	glColor3f(o[0], o[1], o[2]);
-
 	glVertex3f(-0.85f, 0.54f, 0.0f);
 	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.85f, 0.27f, 0.0f);
-	glColor3f(o[0], o[1], o[2]);
 	glVertex3f(-0.8f,  0.32f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
 	glVertex3f(-0.8f,  0.59f, 0.0f);
-	glEnd();
 	
 	// middle
-	glBegin(GL_QUADS);
 	glColor3f(w[0], w[1], w[2]);
-
 	glVertex3f(-0.95f, 0.3f, 0.0f);
 	glVertex3f(-0.95f, 0.25f, 0.0f);
 	glVertex3f(-0.86f, 0.25f, 0.0f);
 	glVertex3f(-0.86f, 0.3f, 0.0f);
-	glEnd();
 
-	glBegin(GL_QUADS);
 	glColor3f(g[0], g[1], g[2]);
-
 	glVertex3f(-0.8f, 0.01f, 0.0f);
-	glVertex3f(-0.8f, 0.22f, 0.0f);
 	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-0.8f, 0.22f, 0.0f);
 	glVertex3f(-0.85f,0.27f, 0.0f);
 	glColor3f(g[0], g[1], g[2]);
 	glVertex3f(-0.85f,0.055f, 0.0f);
-	glEnd();
 
-	glBegin(GL_QUADS);
 	glColor3f(g[0], g[1], g[2]);
-
-	glVertex3f(-0.95f, 0.0f, 0.0f);
+	glVertex3f(-1.0f, 0.0f, 0.0f);
 	glVertex3f(-0.804f,0.0f, 0.0f);
 	glVertex3f(-0.86f, 0.05f, 0.0f);
-	glVertex3f(-0.95f, 0.05f, 0.0f);
+	glVertex3f(-1.0f, 0.05f, 0.0f);
 	glEnd();
 }
-
 
 // H
 void H(void)
@@ -600,237 +561,241 @@ void H(void)
 	glVertex3f(-0.7f, 0.25f, 0.0f);
 	glVertex3f(-0.45f, 0.25f, 0.0f);
 	glVertex3f(-0.45f, 0.3f, 0.0f);
-	glEnd();
+	//glEnd();
 
+	//glBegin(GL_QUADS);
 	glColor3f(o[0], o[1], o[2]);
-	glBegin(GL_QUADS);
 	glVertex3f(-0.7f, 0.6f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.7f, 0.3f, 0.0f);
 	glVertex3f(-0.65f, 0.3f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
 	glVertex3f(-0.65f, 0.6f, 0.0f);
-	glEnd();
+	//glEnd();
 	
-	glColor3f(g[0], g[1], g[2]);
-	glBegin(GL_QUADS);
+	//glBegin(GL_QUADS);
+	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.7f, 0.25f, 0.0f);
+	glColor3f(g[0], g[1], g[2]);
 	glVertex3f(-0.7f, 0.0f, 0.0f);
 	glVertex3f(-0.65f, 0.0f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.65f, 0.25f, 0.0f);
-	glEnd();
+	//glEnd();
 
+	//glBegin(GL_QUADS);
 	glColor3f(o[0], o[1], o[2]);
-	glBegin(GL_QUADS);
 	glVertex3f(-0.5f, 0.6f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.5f, 0.3f, 0.0f);
 	glVertex3f(-0.45f, 0.3f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
 	glVertex3f(-0.45f, 0.6f, 0.0f);
-	glEnd();
+	//glEnd();
 
-	glColor3f(g[0], g[1], g[2]);
-	glBegin(GL_QUADS);
+	//glBegin(GL_QUADS);
+	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.5f, 0.25f, 0.0f);
+	glColor3f(g[0], g[1], g[2]);
 	glVertex3f(-0.5f, 0.0f, 0.0f);
 	glVertex3f(-0.45f, 0.0f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
 	glVertex3f(-0.45f, 0.25f, 0.0f);
-	glEnd();
+	//glEnd();
 }
-
 
 // A
 void A(void)
 {
+	// /
 	glBegin(GL_QUADS);
-
 	glColor3f(g[0], g[1], g[2]);
 	glVertex3f(-0.4f, 0.0f, 0.0f);
 	glVertex3f(-0.35f, 0.0f, 0.0f);
-	glVertex3f(-0.3f, 0.5f, 0.0f);
-	glVertex3f(-0.3f, 0.6f, 0.0f);
-	glEnd();
-
-	glBegin(GL_QUADS);
-		
-	glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-0.25f, 0.0f, 0.0f);
-		
-	glColor3f(g[0], g[1], g[2]);
-	glVertex3f(-0.2f, 0.0f, 0.0f);
-		
-	glColor3f(o[0], o[1], o[2]);
-	glVertex3f(-0.3f, 0.6f, 0.0f);
-		
-	glColor3f(o[0], o[1], o[2]);
-	glVertex3f(-0.3f, 0.5f, 0.0f);
-	glEnd();
-	
-	glBegin(GL_QUADS);
 	glColor3f(w[0], w[1], w[2]);
-
-	glVertex3f(-0.4f, 0.3f, 0.0f);
+	glVertex3f(-0.3f, 0.25f, 0.0f);
 	glVertex3f(-0.35f, 0.25f, 0.0f);
-	glVertex3f(-0.25f, 0.25f, 0.0f);
-	glVertex3f(-0.2f, 0.3f, 0.0f);
+
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(-0.25f, 0.6f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-0.34f, 0.3f, 0.0f);
+	glVertex3f(-0.29f, 0.3f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(-0.25f, 0.5f, 0.0f);
+
+	//Middle -
+
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-0.12f, 0.3f, 0.0f);
+	glVertex3f(-0.38f, 0.3f, 0.0f);
+	glVertex3f(-0.36f, 0.25f, 0.0f);
+	glVertex3f(-0.14f, 0.25f, 0.0f);
+
+	// '\'
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-0.15f, 0.25f, 0.0f);
+	glVertex3f(-0.2f, 0.25f, 0.0f);
+	glColor3f(g[0], g[1], g[2]);
+	glVertex3f(-0.15f, 0.0f, 0.0f);
+	glVertex3f(-0.1f, 0.0f, 0.0f);
+
+	// 
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(-0.25f, 0.6f, 0.0f);
+	glVertex3f(-0.25f, 0.5f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(-0.21f, 0.3f, 0.0f);
+	glVertex3f(-0.16f, 0.3f, 0.0f);
+
 	glEnd();
 }
 
-/*
 // R
 void R(void)
 {
-	//if (y_DHBrth >= 50.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(-0.15f, 0.6f, 0.0f);
-		
-		glColor3f(g[0], g[1], g[2]);
-		glVertex3f(-0.15f, 0.0f, 0.0f);
 
-		glColor3f(g[0], g[1], g[2]);
-		glVertex3f(-0.1f,  0.0f, 0.0f);
-
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(-0.1f,  0.6f, 0.0f);
-		glEnd();
-	}
-
-	//if (y_DHBrth >= 55.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(-0.1f, 0.6f, 0.0f);
-		
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(-0.1f, 0.55f, 0.0f);
-		
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.05f, 0.55f, 0.0f);
-		
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.1f,  0.6f, 0.0f);
-		glEnd();
-	}
-
-	//if (y_DHBrth >= 60.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(o[0], o[1], o[2]);
-
-		glVertex3f(0.05f, 0.54f, 0.0f);
-		glVertex3f(0.05f, 0.31f, 0.0f);
+	glBegin(GL_QUADS);
+		//
 		glColor3f(w[0], w[1], w[2]);
-		glVertex3f(0.1f,0.26f, 0.0f);
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.1f,0.59f, 0.0f);
-		glEnd();
-	}
-
-	//if (y_DHBrth >= 65.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(w[0], w[1], w[2]);
-
-		glVertex3f(-0.1f, 0.3f, 0.0f);
+		glVertex3f(0.0f, 0.25f, 0.0f);
 		glVertex3f(-0.05f, 0.25f, 0.0f);
-		glVertex3f(0.1f,  0.25f, 0.0f);
-		glVertex3f(0.05f, 0.3f, 0.0f);
-		glEnd();
-	}
-
-	//if (y_DHBrth >= 70.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(w[0], w[1], w[2]);
-		glVertex3f(-0.1f, 0.29f, 0.0f);
-		
 		glColor3f(g[0], g[1], g[2]);
-		glVertex3f(0.05f, 0.0f, 0.0f);
-		glVertex3f(0.1f,  0.0f, 0.0f);
-		glVertex3f(-0.05f,0.24f, 0.0f);
-		// glVertex3f(-0.18f, -0.43f, 0.0f);
-		glEnd();
-	}
+		glVertex3f(-0.05f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+	
+		// 
+		glColor3f(o[0], o[1], o[2]);
+		glVertex3f(0.0f, 0.6f, 0.0f);
+		glVertex3f(-0.05f, 0.6f, 0.0f);
+		glColor3f(w[0], w[1], w[2]);
+		glVertex3f(-0.05f, 0.3f, 0.0f);
+		glVertex3f(0.0f, 0.3f, 0.0f);
+
+		//Middle -
+
+		glColor3f(w[0], w[1], w[2]);
+		glVertex3f(0.2f, 0.3f, 0.0f);
+		glVertex3f(-0.05f, 0.3f, 0.0f);
+		glVertex3f(-0.05f, 0.25f, 0.0f);
+		glVertex3f(0.2f, 0.25f, 0.0f);
+
+		//
+		glColor3f(o[0], o[1], o[2]);
+		glVertex3f(0.2f, 0.6f, 0.0f);
+		glVertex3f(0.0f, 0.6f, 0.0f);
+		glVertex3f(0.0f, 0.55f, 0.0f);
+		glVertex3f(0.2f, 0.55f, 0.0f);
+
+		//
+		/*glColor3f(o[0], o[1], o[2]);
+		glVertex3f(0.2f, 0.6f, 0.0f);
+		glVertex3f(0.15f, 0.55f, 0.0f);
+		glVertex3f(0.15f, 0.3f, 0.0f);
+		glVertex3f(0.2f, 0.3f, 0.0f);*/
+
+		//
+		glColor3f(o[0], o[1], o[2]);
+		glVertex3f(0.2f, 0.6f, 0.0f);
+		glVertex3f(0.15f, 0.55f, 0.0f);
+		glColor3f(w[0], w[1], w[2]);
+		glVertex3f(0.15f, 0.3f, 0.0f);
+		glVertex3f(0.2f, 0.3f, 0.0f);
+
+		//
+		glColor3f(w[0], w[1], w[2]);
+		glVertex3f(0.05f, 0.25f, 0.0f);
+		glVertex3f(0.0f, 0.25f, 0.0f);
+		glColor3f(g[0], g[1], g[2]);
+		glVertex3f(0.15f, 0.0f, 0.0f);
+		glVertex3f(0.2f, 0.0f, 0.0f);
+
+	glEnd();
 }
 
 // A1
 void A1(void)
 {
-	//if (x_DHBrth >= 40.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.3f, 0.6f, 0.0f);
-		glColor3f(g[0], g[1], g[2]);
-		glVertex3f(0.4f, 0.0f, 0.0f);
-		glVertex3f(0.35f, 0.0f, 0.0f);
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.3f, 0.5f, 0.0f);
-		glEnd();
-	}
+	// /
+	glBegin(GL_QUADS);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.4f, 0.25f, 0.0f);
+	glVertex3f(0.35f, 0.25f, 0.0f);
+	glColor3f(g[0], g[1], g[2]);
+	glVertex3f(0.3f, 0.0f, 0.0f);
+	glVertex3f(0.35f, 0.0f, 0.0f);
 
-	//if (x_DHBrth >= 50.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.3f, 0.5f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(0.45f, 0.6f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.36f, 0.3f, 0.0f);
+	glVertex3f(0.41f, 0.3f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(0.45f, 0.5f, 0.0f);
 
-		glColor3f(g[0], g[1], g[2]);
-		glVertex3f(0.25f, 0.0f, 0.0f);
-		glVertex3f(0.2f, 0.0f, 0.0f);
+	//Middle -
 
-		glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.3f, 0.6f, 0.0f);
-		glEnd();
-	}
-	//if (x_DHBrth >= 60.0f)
-	{
-		glBegin(GL_QUADS);
-		glColor3f(w[0], w[1], w[2]);
-		glVertex3f(0.4f, 0.3f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.57f, 0.3f, 0.0f);
+	glVertex3f(0.33f, 0.3f, 0.0f);
+	glVertex3f(0.34f, 0.25f, 0.0f);
+	glVertex3f(0.56f, 0.25f, 0.0f);
 
-		//glColor3f(g[0], g[1], g[2]);
-		glVertex3f(0.35f, 0.25f, 0.0f);
-		glVertex3f(0.25f, 0.25f, 0.0f);
-		
-		//glColor3f(o[0], o[1], o[2]);
-		glVertex3f(0.2f, 0.3f, 0.0f);
-		glEnd();
-	}
+	// '\'
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.55f, 0.25f, 0.0f);
+	glVertex3f(0.5f, 0.25f, 0.0f);
+	glColor3f(g[0], g[1], g[2]);
+	glVertex3f(0.55f, 0.0f, 0.0f);
+	glVertex3f(0.6f, 0.0f, 0.0f);
+
+	//
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(0.45f, 0.6f, 0.0f);
+	glVertex3f(0.45f, 0.5f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.49f, 0.3f, 0.0f);
+	glVertex3f(0.54f, 0.3f, 0.0f);
+
+	glEnd();
 }
-*/
 
 // T
 void T(void)
 {
 	glBegin(GL_QUADS);
+
 	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(0.55f, 0.6f, 0.0f);
+	glVertex3f(0.55f, 0.55f, 0.0f);
+	glVertex3f(0.85f, 0.55f, 0.0f);
+	glVertex3f(0.85f, 0.6f, 0.0f);
+	//glEnd();
 
-	glVertex3f(0.45f, 0.6f, 0.0f);
-	glVertex3f(0.45f, 0.55f, 0.0f);
-	glVertex3f(0.75f, 0.55f, 0.0f);
-	glVertex3f(0.75f, 0.6f, 0.0f);
-	glEnd();
-
-	glBegin(GL_QUADS);
-	glVertex3f(0.58f, 0.55f, 0.0f);
-	glVertex3f(0.58f, 0.35f, 0.0f);
-	glVertex3f(0.62f, 0.35f, 0.0f);
-	glVertex3f(0.62f, 0.55f, 0.0f);
-	glEnd();
-
-	glBegin(GL_QUADS);
+	//glBegin(GL_QUADS);
+	glVertex3f(0.68f, 0.55f, 0.0f);
 	glColor3f(w[0], w[1], w[2]);
-	glVertex3f(0.58f, 0.35f, 0.0f);
-	glVertex3f(0.58f, 0.25f, 0.0f);
-	glVertex3f(0.62f, 0.25f, 0.0f);
-	glVertex3f(0.62f, 0.35f, 0.0f);
-	glEnd();
+	glVertex3f(0.68f, 0.35f, 0.0f);
+	glVertex3f(0.72f, 0.35f, 0.0f);
+	glColor3f(o[0], o[1], o[2]);
+	glVertex3f(0.72f, 0.55f, 0.0f);
+	//glEnd();
 
-	glBegin(GL_QUADS);
+	//glBegin(GL_QUADS);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.68f, 0.35f, 0.0f);
+	glVertex3f(0.68f, 0.25f, 0.0f);
+	glVertex3f(0.72f, 0.25f, 0.0f);
+	glVertex3f(0.72f, 0.35f, 0.0f);
+	//glEnd();
+
+	//glBegin(GL_QUADS);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.68f, 0.25f, 0.0f);
 	glColor3f(g[0], g[1], g[2]);
-	glVertex3f(0.58f, 0.25f, 0.0f);
-	glVertex3f(0.58f, 0.0f, 0.0f);
-	glVertex3f(0.62f, 0.0f, 0.0f);
-	glVertex3f(0.62f, 0.25f, 0.0f);
+	glVertex3f(0.68f, 0.0f, 0.0f);
+	glVertex3f(0.72f, 0.0f, 0.0f);
+	glColor3f(w[0], w[1], w[2]);
+	glVertex3f(0.72f, 0.25f, 0.0f);
 	glEnd();
 }
