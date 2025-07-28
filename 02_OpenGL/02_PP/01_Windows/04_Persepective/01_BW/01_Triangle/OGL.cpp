@@ -58,7 +58,7 @@ GLuint vbo_position = 0;
 
 GLuint mvpMatrixUniform;
 
-mat4 orthoGraphicProjectionMatrix; // mat = matrix, 4 = 4x4 matrix
+mat4 perspectiveProjectionMatrix; // mat = matrix, 4 = 4x4 matrix
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -505,9 +505,9 @@ int initialize(void)
 
 	// Provide vertex position, color, normal, textcord etc
 	const GLfloat triangle_position[] = {
-						0.0f, 50.0f, 0.0f,
-						-50.0f, -50.0f, 0.0f,
-						50.0f, -50.0f, 0.0f};
+						0.0f, 1.0f, 0.0f,
+						-1.0f, -1.0f, 0.0f,
+						1.0f, -1.0f, 0.0f};
 
 	// VERTEX ARRAY OBJECT FOR ARRAY OF VERTEX ATTRIBUTE
 	glGenVertexArrays(1, &vao);
@@ -540,7 +540,7 @@ int initialize(void)
 	// Tell OpenGL to choose the color to clear the screen
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 
-	orthoGraphicProjectionMatrix = mat4::identity(); // this ia equal to glLoadIdentity();
+	perspectiveProjectionMatrix = mat4::identity(); // this ia equal to glLoadIdentity();
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
@@ -584,28 +584,10 @@ void resize(int width, int height)
 	// set the view port
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
-	//// Set matrix projection mode
-	//glMatrixMode(GL_PROJECTION);
-	
-	// equal to GL_PROJECTION
-	if (width <= height)
-	{
-		orthoGraphicProjectionMatrix = vmath::ortho(-100.0f, //  left
-			100.0f, // right
-			(-100.0f * ((GLfloat)height / (GLfloat)width)), // bottom
-			(100.0f * ((GLfloat)height / (GLfloat)width)), // top
-			-100.0f,  // near
-			100.0f); // far
-	}
-	else
-	{
-		orthoGraphicProjectionMatrix = vmath::ortho((-100.0f * ((GLfloat)width / (GLfloat)height)), // left
-			(100.0f * ((GLfloat)width / (GLfloat)height)), // right
-			-100.0f, // bottom
-			100.0f, // top
-			-100.0f, // near
-			100.0f); // far
-	}
+	perspectiveProjectionMatrix = vmath::perspective(45.0f, // FOV-Y 
+		(GLfloat)width / (GLfloat)height, // Aspect Ratio 
+		0.1f, // Near 
+		100.0f); // Far
 }
 
 void display(void)
@@ -622,7 +604,13 @@ void display(void)
 
 	mat4 modelViewProjectionMatrix = mat4::identity();
 
-	modelViewProjectionMatrix = orthoGraphicProjectionMatrix * modelViewMatrix; // Order is important
+	mat4 translationMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(0.0f, 0.0f, -3.0f);
+
+	modelViewMatrix = translationMatrix;
+
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix; // Order is important
 
 	// Send this matrix to the shader in uniform
 	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);

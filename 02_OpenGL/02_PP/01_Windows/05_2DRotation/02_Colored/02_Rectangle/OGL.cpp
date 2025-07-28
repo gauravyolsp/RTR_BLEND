@@ -51,14 +51,17 @@ GLuint shaderProgramObject = 0;
 enum
 {
 	AMC_ATTRIBUTE_POSIITON = 0,
+	AMC_ATTRIBUTE_COLOR,
 };
 
-GLuint vao = 0;
-GLuint vbo_position = 0;
+GLuint vao_rectangle = 0;
+GLuint vbo_color_rectangle = 0;
+GLuint vbo_position_rectangle = 0;
 
 GLuint mvpMatrixUniform;
+mat4 perspectiveProjectionMatrix;
 
-mat4 orthoGraphicProjectionMatrix; // mat = matrix, 4 = 4x4 matrix
+GLfloat angleRectangle = 0.0f;
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -377,9 +380,12 @@ int initialize(void)
 		"#version 460 core\n" \
 		"in vec4 aPosition;\n" \
 		"uniform mat4 uMVPMatrix;\n" \
+		"in vec4 aColor;\n" \
+		"out vec4 out_color;\n" \
 		"void main(void)\n" \
 		"{\n" \
 		"gl_Position = uMVPMatrix * aPosition;\n" \
+		"out_color = aColor;\n" \
 		"}\n";
 
 	// Step 2 : Create the shader object
@@ -425,10 +431,11 @@ int initialize(void)
 	// FRAGMENT SHADER
 	const GLchar* fragmentShaderSourceCode =
 		"#version 460 core\n" \
+		"in vec4 out_color;\n" \
 		"out vec4 FragColor;\n" \
 		"void main(void)\n" \
 		"{\n" \
-		"FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n" \
+		"FragColor = out_color;\n" \
 		"}\n";
 
 	GLuint fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
@@ -472,6 +479,8 @@ int initialize(void)
 	// Bind shader attribute at a certain index in shader to same index in host program (CPU)
 	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_POSIITON, "aPosition");
 
+	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_COLOR, "aColor");
+
 	glLinkProgram(shaderProgramObject);
 
 	status = 0;
@@ -504,26 +513,48 @@ int initialize(void)
 	mvpMatrixUniform = glGetUniformLocation(shaderProgramObject, "uMVPMatrix");
 
 	// Provide vertex position, color, normal, textcord etc
-	const GLfloat triangle_position[] = {
-						0.0f, 50.0f, 0.0f,
-						-50.0f, -50.0f, 0.0f,
-						50.0f, -50.0f, 0.0f};
+	const GLfloat rectangle_position[] = {
+						1.0f, 1.0f, 0.0f,
+						-1.0f, 1.0f, 0.0f,
+						-1.0f, -1.0f, 0.0f,
+						1.0f, -1.0f, 0.0f};
+
+	const GLfloat rectangle_color[] = {
+						0.0f, 0.0f, 1.0f,
+						0.0f, 0.0f, 1.0f,
+						0.0f, 0.0f, 1.0f,
+						0.0f, 0.0f, 1.0f};
 
 	// VERTEX ARRAY OBJECT FOR ARRAY OF VERTEX ATTRIBUTE
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	// RECTANGLE
+	glGenVertexArrays(1, &vao_rectangle);
+	glBindVertexArray(vao_rectangle);
 
 	// POSITION
 	// Step 1
-	glGenBuffers(1, &vbo_position);
+	glGenBuffers(1, &vbo_position_rectangle);
 	// Step 2
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_position_rectangle);
 	// Step 3
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_position), triangle_position, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangle_position), rectangle_position, GL_STATIC_DRAW);
 	// Step 4
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSIITON, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	// Step 5
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSIITON);
+	// Step 6
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Color
+	// Step 1
+	glGenBuffers(1, &vbo_color_rectangle);
+	// Step 2
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_color_rectangle);
+	// Step 3
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangle_color), rectangle_color, GL_STATIC_DRAW);
+	// Step 4
+	glVertexAttribPointer(AMC_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	// Step 5
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_COLOR);
 	// Step 6
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -538,9 +569,9 @@ int initialize(void)
 
 	// From here onwards OpenGL code starts
 	// Tell OpenGL to choose the color to clear the screen
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	orthoGraphicProjectionMatrix = mat4::identity(); // this ia equal to glLoadIdentity();
+	perspectiveProjectionMatrix = mat4::identity();
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
@@ -584,28 +615,11 @@ void resize(int width, int height)
 	// set the view port
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
-	//// Set matrix projection mode
-	//glMatrixMode(GL_PROJECTION);
-	
-	// equal to GL_PROJECTION
-	if (width <= height)
-	{
-		orthoGraphicProjectionMatrix = vmath::ortho(-100.0f, //  left
-			100.0f, // right
-			(-100.0f * ((GLfloat)height / (GLfloat)width)), // bottom
-			(100.0f * ((GLfloat)height / (GLfloat)width)), // top
-			-100.0f,  // near
-			100.0f); // far
-	}
-	else
-	{
-		orthoGraphicProjectionMatrix = vmath::ortho((-100.0f * ((GLfloat)width / (GLfloat)height)), // left
-			(100.0f * ((GLfloat)width / (GLfloat)height)), // right
-			-100.0f, // bottom
-			100.0f, // top
-			-100.0f, // near
-			100.0f); // far
-	}
+	perspectiveProjectionMatrix = vmath::perspective(45.0f, // FOV-Y 
+		(GLfloat)width / (GLfloat)height, // Aspect Ratio 
+		0.1f, // Near 
+		100.0f); // Far
+
 }
 
 void display(void)
@@ -617,22 +631,32 @@ void display(void)
 	// USE SHADER PROGRAM OBJECT
 	glUseProgram(shaderProgramObject);
 
+	// RECTANGLE
+
 	// Transformation
 	mat4 modelViewMatrix = mat4::identity(); // Equal to glLoadIdentity in Display for model view matrix
 
 	mat4 modelViewProjectionMatrix = mat4::identity();
 
-	modelViewProjectionMatrix = orthoGraphicProjectionMatrix * modelViewMatrix; // Order is important
+	mat4 translationMatrix = mat4::identity();
+	translationMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
+
+	mat4 rotationMatrix = mat4::identity();
+	rotationMatrix = vmath::rotate(angleRectangle, 1.0f, 0.0f, 0.0f);
+	
+	modelViewMatrix = translationMatrix * rotationMatrix; // order is very important
+
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix; // Order is important
 
 	// Send this matrix to the shader in uniform
 	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
 
-	// Bind with VAO
-	glBindVertexArray(vao);
+	// Bind with VAO_RECTANGLE
+	glBindVertexArray(vao_rectangle);
 
 	// Draw the vertex arrays
 	// shader start running here
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	glBindVertexArray(0);
 
@@ -646,6 +670,12 @@ void display(void)
 void update(void)
 {
 	// code
+	angleRectangle = angleRectangle - 0.05f;
+
+	if (angleRectangle >= 360.0f)
+	{
+		angleRectangle = angleRectangle - 360.0f;
+	}
 }
 
 void uninitialize(void)
@@ -661,18 +691,26 @@ void uninitialize(void)
 		gbFullScreen = FALSE;
 	}
 
-	// Free vbo of position
-	if (vbo_position)
+	// RECTANGLE
+	// Free vbo of color
+	if (vbo_color_rectangle)
 	{
-		glDeleteBuffers(1, &vbo_position);
-		vbo_position = 0;
+		glDeleteBuffers(1, &vbo_color_rectangle);
+		vbo_color_rectangle = 0;
+	}
+
+	// Free vbo of position
+	if (vbo_position_rectangle)
+	{
+		glDeleteBuffers(1, &vbo_position_rectangle);
+		vbo_position_rectangle = 0;
 	}
 
 	// Free VAO
-	if (vao)
+	if (vao_rectangle)
 	{
-		glDeleteVertexArrays(1, &vao);
-		vao = 0;
+		glDeleteVertexArrays(1, &vao_rectangle);
+		vao_rectangle = 0;
 	}
 
 	// DETACH, DELETE SHADER OBJECT AND DELETE SHADER PROGRAM OBJECT

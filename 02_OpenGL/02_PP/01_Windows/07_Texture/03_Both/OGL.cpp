@@ -51,14 +51,28 @@ GLuint shaderProgramObject = 0;
 enum
 {
 	AMC_ATTRIBUTE_POSIITON = 0,
+	AMC_ATTRIBUTE_COLOR,
+	AMC_ATTRIBUTE_TEXCOORD,
 };
 
-GLuint vao = 0;
-GLuint vbo_position = 0;
+GLuint vao_pyramid = 0;
+GLuint vbo_texcoord_pyramid = 0;
+GLuint vbo_position_pyramid = 0;
+
+GLuint vao_cube = 0;
+GLuint vbo_texcoord_cube = 0;
+GLuint vbo_position_cube = 0;
 
 GLuint mvpMatrixUniform;
+mat4 perspectiveProjectionMatrix;
 
-mat4 orthoGraphicProjectionMatrix; // mat = matrix, 4 = 4x4 matrix
+GLfloat anglePyramid = 0.0f;
+GLfloat angleCube = 0.0f;
+
+// Variables related to TEXTURE
+GLuint texture_stone;
+GLuint texture_kundali;
+GLuint textureSamplerUniform;
 
 // Entry Point Function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -300,6 +314,7 @@ int initialize(void)
 	void printGLInfo(void);
 	void resize(int, int);
 	void uninitialize(void);
+	BOOL loadGLTexture(GLuint*, TCHAR[]);
 
 	// variable declarations
 	PIXELFORMATDESCRIPTOR pfd;
@@ -377,9 +392,12 @@ int initialize(void)
 		"#version 460 core\n" \
 		"in vec4 aPosition;\n" \
 		"uniform mat4 uMVPMatrix;\n" \
+		"in vec2 aTexCoord;\n" \
+		"out vec2 out_texcoord;\n" \
 		"void main(void)\n" \
 		"{\n" \
 		"gl_Position = uMVPMatrix * aPosition;\n" \
+		"out_texcoord = aTexCoord;\n" \
 		"}\n";
 
 	// Step 2 : Create the shader object
@@ -425,10 +443,12 @@ int initialize(void)
 	// FRAGMENT SHADER
 	const GLchar* fragmentShaderSourceCode =
 		"#version 460 core\n" \
+		"in vec2 out_texcoord;\n" \
+		"uniform sampler2D uTextureSampler;\n" \
 		"out vec4 FragColor;\n" \
 		"void main(void)\n" \
 		"{\n" \
-		"FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n" \
+		"FragColor = texture(uTextureSampler, out_texcoord);\n" \
 		"}\n";
 
 	GLuint fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
@@ -472,6 +492,8 @@ int initialize(void)
 	// Bind shader attribute at a certain index in shader to same index in host program (CPU)
 	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_POSIITON, "aPosition");
 
+	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_TEXCOORD, "aTexCoord");
+
 	glLinkProgram(shaderProgramObject);
 
 	status = 0;
@@ -502,28 +524,193 @@ int initialize(void)
 
 	// Get The required uniform location from the shader
 	mvpMatrixUniform = glGetUniformLocation(shaderProgramObject, "uMVPMatrix");
+	textureSamplerUniform = glGetUniformLocation(shaderProgramObject, "uTextureSampler");
 
 	// Provide vertex position, color, normal, textcord etc
-	const GLfloat triangle_position[] = {
-						0.0f, 50.0f, 0.0f,
-						-50.0f, -50.0f, 0.0f,
-						50.0f, -50.0f, 0.0f};
+	const GLfloat pyramid_position[] = {
+						// front
+						0.0f,  1.0f,  0.0f, // front-top
+						-1.0f, -1.0f,  1.0f, // front-left
+						 1.0f, -1.0f,  1.0f, // front-right
+
+						 // right
+						 0.0f,  1.0f,  0.0f, // right-top
+						 1.0f, -1.0f,  1.0f, // right-left
+						 1.0f, -1.0f, -1.0f, // right-right
+
+						 // back
+						 0.0f,  1.0f,  0.0f, // back-top
+						 1.0f, -1.0f, -1.0f, // back-left
+						-1.0f, -1.0f, -1.0f, // back-right
+
+						// left
+						0.0f,  1.0f,  0.0f, // left-top
+						-1.0f, -1.0f, -1.0f, // left-left
+						-1.0f, -1.0f,  1.0f, // left-right
+						};
+
+	const GLfloat pyramid_texcoords[] = {
+						// front
+						0.5, 1.0, // front-top
+						0.0, 0.0, // front-left
+						1.0, 0.0, // front-right
+
+						// right
+						0.5, 1.0, // right-top
+						1.0, 0.0, // right-left
+						0.0, 0.0, // right-right
+
+						// back
+						0.5, 1.0, // back-top
+						0.0, 0.0, // back-left
+						1.0, 0.0, // back-right
+
+						// left
+						0.5, 1.0, // left-top
+						1.0, 0.0, // left-left
+						0.0, 0.0, // left-right
+						};
+
+	const GLfloat cube_position[] = {
+						// front
+						1.0f,  1.0f,  1.0f, // top-right of front
+						-1.0f,  1.0f,  1.0f, // top-left of front
+						-1.0f, -1.0f,  1.0f, // bottom-left of front
+						 1.0f, -1.0f,  1.0f, // bottom-right of front
+
+						// right
+						1.0f,  1.0f, -1.0f, // top-right of right
+						1.0f,  1.0f,  1.0f, // top-left of right
+						1.0f, -1.0f,  1.0f, // bottom-left of right
+						1.0f, -1.0f, -1.0f, // bottom-right of right
+
+						// back
+						1.0f,  1.0f, -1.0f, // top-right of back
+						-1.0f,  1.0f, -1.0f, // top-left of back
+						-1.0f, -1.0f, -1.0f, // bottom-left of back
+						1.0f, -1.0f, -1.0f, // bottom-right of back
+
+						// left
+						-1.0f,  1.0f,  1.0f, // top-right of left
+						-1.0f,  1.0f, -1.0f, // top-left of left
+						-1.0f, -1.0f, -1.0f, // bottom-left of left
+						-1.0f, -1.0f,  1.0f, // bottom-right of left
+
+						// top
+						1.0f,  1.0f, -1.0f, // top-right of top
+						-1.0f,  1.0f, -1.0f, // top-left of top
+						-1.0f,  1.0f,  1.0f, // bottom-left of top
+						1.0f,  1.0f,  1.0f, // bottom-right of top
+
+						// bottom
+						1.0f, -1.0f,  1.0f, // top-right of bottom
+						-1.0f, -1.0f,  1.0f, // top-left of bottom
+						-1.0f, -1.0f, -1.0f, // bottom-left of bottom
+						1.0f, -1.0f, -1.0f, // bottom-right of bottom
+						};
+
+	const GLfloat cube_texcoord[] = {
+						// front
+						1.0f, 1.0f, // top-right of front
+						0.0f, 1.0f, // top-left of front
+						0.0f, 0.0f, // bottom-left of front
+						1.0f, 0.0f, // bottom-right of front
+
+						// right
+						1.0f, 1.0f, // top-right of right
+						0.0f, 1.0f, // top-left of right
+						0.0f, 0.0f, // bottom-left of right
+						1.0f, 0.0f, // bottom-right of right
+
+						// back
+						1.0f, 1.0f, // top-right of back
+						0.0f, 1.0f, // top-left of back
+						0.0f, 0.0f, // bottom-left of back
+						1.0f, 0.0f, // bottom-right of back
+
+						// left
+						1.0f, 1.0f, // top-right of left
+						0.0f, 1.0f, // top-left of left
+						0.0f, 0.0f, // bottom-left of left
+						1.0f, 0.0f, // bottom-right of left
+
+						// top
+						1.0f, 1.0f, // top-right of top
+						0.0f, 1.0f, // top-left of top
+						0.0f, 0.0f, // bottom-left of top
+						1.0f, 0.0f, // bottom-right of top
+
+						// bottom
+						1.0f, 1.0f, // top-right of bottom
+						0.0f, 1.0f, // top-left of bottom
+						0.0f, 0.0f, // bottom-left of bottom
+						1.0f, 0.0f, // bottom-right of bottom
+						};
 
 	// VERTEX ARRAY OBJECT FOR ARRAY OF VERTEX ATTRIBUTE
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	// PYRAMID
+	glGenVertexArrays(1, &vao_pyramid);
+	glBindVertexArray(vao_pyramid);
 
 	// POSITION
 	// Step 1
-	glGenBuffers(1, &vbo_position);
+	glGenBuffers(1, &vbo_position_pyramid);
 	// Step 2
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_position_pyramid);
 	// Step 3
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_position), triangle_position, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pyramid_position), pyramid_position, GL_STATIC_DRAW);
 	// Step 4
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSIITON, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	// Step 5
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSIITON);
+	// Step 6
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// TexCoord
+	// Step 1
+	glGenBuffers(1, &vbo_texcoord_pyramid);
+	// Step 2
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_texcoord_pyramid);
+	// Step 3
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pyramid_texcoords), pyramid_texcoords, GL_STATIC_DRAW);
+	// Step 4
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	// Step 5
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXCOORD);
+	// Step 6
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+	// CUBE
+	glGenVertexArrays(1, &vao_cube);
+	glBindVertexArray(vao_cube);
+
+	// POSITION
+	// Step 1
+	glGenBuffers(1, &vbo_position_cube);
+	// Step 2
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_position_cube);
+	// Step 3
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_position), cube_position, GL_STATIC_DRAW);
+	// Step 4
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSIITON, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	// Step 5
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSIITON);
+	// Step 6
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// TexCoord
+	// Step 1
+	glGenBuffers(1, &vbo_texcoord_cube);
+	// Step 2
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_texcoord_cube);
+	// Step 3
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_texcoord), cube_texcoord, GL_STATIC_DRAW);
+	// Step 4
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	// Step 5
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXCOORD);
 	// Step 6
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -538,9 +725,22 @@ int initialize(void)
 
 	// From here onwards OpenGL code starts
 	// Tell OpenGL to choose the color to clear the screen
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	orthoGraphicProjectionMatrix = mat4::identity(); // this ia equal to glLoadIdentity();
+	// Load Textures
+	if (loadGLTexture(&texture_stone, MAKEINTRESOURCE(IDBITMAP_STONE)) == FALSE)
+	{
+		fprintf(gpFile, "Load Texture Failure for Stone.bmp");
+		return(-6);
+	}
+
+	if (loadGLTexture(&texture_kundali, MAKEINTRESOURCE(IDBITMAP_KUNDALI)) == FALSE)
+	{
+		fprintf(gpFile, "Load Texture Failure for Kundali.bmp");
+		return(-7);
+	}
+
+	perspectiveProjectionMatrix = mat4::identity();
 
 	// Warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
@@ -573,6 +773,56 @@ void printGLInfo(void)
 	}
 }
 
+BOOL loadGLTexture(GLuint* texture, TCHAR imageRecourceID[])
+{
+	// VARIABLE DECLARATIONS	
+	HBITMAP hBitMap = NULL;
+	BITMAP bmp;
+	BOOL bResult = FALSE;
+
+	// CODE 
+	// Load the bitmap as a image
+	hBitMap = (HBITMAP)LoadImage(GetModuleHandleA(NULL), imageRecourceID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+
+	if (hBitMap)
+	{
+		bResult = TRUE;
+
+		// Get Bitmap structure from the loaded bitmap image
+		GetObject(hBitMap, sizeof(BITMAP), &bmp);
+
+		// Generate OpenGL Texture Object
+		glGenTextures(1, texture);
+
+		// Bind to the new created empty structure object
+		glBindTexture(GL_TEXTURE_2D, *texture);
+
+		// Unpack the image in memory for faster loading
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+		//  Object near to eyes
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//  Object far to eyes
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		// 64*64, 32*32 ... 1*1
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, bmp.bmWidth, bmp.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, bmp.bmBits);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp.bmWidth, bmp.bmHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, bmp.bmBits);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+		// Un-Bind 0 denotes unbind
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		DeleteObject(hBitMap);
+		hBitMap = NULL;
+	}
+
+	return bResult;
+}
+
 void resize(int width, int height)
 {
 	// code
@@ -584,28 +834,11 @@ void resize(int width, int height)
 	// set the view port
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
-	//// Set matrix projection mode
-	//glMatrixMode(GL_PROJECTION);
-	
-	// equal to GL_PROJECTION
-	if (width <= height)
-	{
-		orthoGraphicProjectionMatrix = vmath::ortho(-100.0f, //  left
-			100.0f, // right
-			(-100.0f * ((GLfloat)height / (GLfloat)width)), // bottom
-			(100.0f * ((GLfloat)height / (GLfloat)width)), // top
-			-100.0f,  // near
-			100.0f); // far
-	}
-	else
-	{
-		orthoGraphicProjectionMatrix = vmath::ortho((-100.0f * ((GLfloat)width / (GLfloat)height)), // left
-			(100.0f * ((GLfloat)width / (GLfloat)height)), // right
-			-100.0f, // bottom
-			100.0f, // top
-			-100.0f, // near
-			100.0f); // far
-	}
+	perspectiveProjectionMatrix = vmath::perspective(45.0f, // FOV-Y 
+		(GLfloat)width / (GLfloat)height, // Aspect Ratio 
+		0.1f, // Near 
+		100.0f); // Far
+
 }
 
 void display(void)
@@ -617,23 +850,90 @@ void display(void)
 	// USE SHADER PROGRAM OBJECT
 	glUseProgram(shaderProgramObject);
 
+	// PYRAMID
+
 	// Transformation
 	mat4 modelViewMatrix = mat4::identity(); // Equal to glLoadIdentity in Display for model view matrix
 
 	mat4 modelViewProjectionMatrix = mat4::identity();
 
-	modelViewProjectionMatrix = orthoGraphicProjectionMatrix * modelViewMatrix; // Order is important
+	mat4 translationMatrix = mat4::identity();
+	translationMatrix = vmath::translate(-1.5f, 0.0f, -6.0f);
+
+	mat4 rotationMatrix = mat4::identity();
+	rotationMatrix = vmath::rotate(anglePyramid, 0.0f, 1.0f, 0.0f);
+
+	modelViewMatrix = translationMatrix * rotationMatrix; // order is very important
+
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix; // Order is important
 
 	// Send this matrix to the shader in uniform
 	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
 
-	// Bind with VAO
-	glBindVertexArray(vao);
+	// For Texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_stone);
+	glUniform1i(textureSamplerUniform, 0);
+
+	// Bind with VAO_PYRAMID
+	glBindVertexArray(vao_pyramid);
 
 	// Draw the vertex arrays
 	// shader start running here
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 12);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 
+	// CUBE
+
+	// Transformation
+	modelViewMatrix = mat4::identity(); // Equal to glLoadIdentity in Display for model view matrix
+
+	modelViewProjectionMatrix = mat4::identity();
+
+	translationMatrix = mat4::identity();
+	translationMatrix = vmath::translate(1.5f, 0.0f, -6.0f);
+
+	mat4 scaleMatrix = mat4::identity();
+	scaleMatrix = vmath::scale(0.75f, 0.75f, 0.75f);
+
+	rotationMatrix = mat4::identity();
+
+	mat4 rotationMatrixX = mat4::identity();
+	rotationMatrixX = vmath::rotate(angleCube, 1.0f, 0.0f, 0.0f);
+	mat4 rotationMatrixY = mat4::identity();
+	rotationMatrixY = vmath::rotate(angleCube, 0.0f, 1.0f, 0.0f);
+	mat4 rotationMatrixZ = mat4::identity();
+	rotationMatrixZ = vmath::rotate(angleCube, 0.0f, 0.0f, 1.0f);
+	
+	rotationMatrix = rotationMatrixX * rotationMatrixY * rotationMatrixZ;
+	
+	modelViewMatrix = translationMatrix * scaleMatrix * rotationMatrix; // order is very important
+
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix; // Order is important
+
+	// Send this matrix to the shader in uniform
+	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	// For Texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_kundali);
+	glUniform1i(textureSamplerUniform, 0);
+
+	// Bind with VAO_CUBE
+	glBindVertexArray(vao_cube);
+
+	// Draw the vertex arrays
+	// shader start running here
+	// 2nd parameters tells index of array from where to start 0 se 4, 4 se 4 , 8 se 4 and so on
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 
 	// Unused shader program object
@@ -646,6 +946,19 @@ void display(void)
 void update(void)
 {
 	// code
+	anglePyramid = anglePyramid + 0.05f;
+
+	if (anglePyramid >= 360.0f)
+	{
+		anglePyramid = anglePyramid - 360.0f;
+	}
+
+	angleCube = angleCube - 0.05f;
+
+	if (angleCube >= 360.0f)
+	{
+		angleCube = angleCube - 360.0f;
+	}
 }
 
 void uninitialize(void)
@@ -661,18 +974,60 @@ void uninitialize(void)
 		gbFullScreen = FALSE;
 	}
 
-	// Free vbo of position
-	if (vbo_position)
+	if (texture_kundali)
 	{
-		glDeleteBuffers(1, &vbo_position);
-		vbo_position = 0;
+		glDeleteTextures(1, &texture_kundali);
+		texture_kundali = 0;
+	}
+
+	if (texture_stone)
+	{
+		glDeleteTextures(1, &texture_stone);
+		texture_stone = 0;
+	}
+
+	// CUBE
+	// Free vbo of texture
+	if (vbo_texcoord_cube)
+	{
+		glDeleteBuffers(1, &vbo_texcoord_cube);
+		vbo_texcoord_cube = 0;
+	}
+
+	// Free vbo of position
+	if (vbo_position_cube)
+	{
+		glDeleteBuffers(1, &vbo_position_cube);
+		vbo_position_cube = 0;
 	}
 
 	// Free VAO
-	if (vao)
+	if (vao_cube)
 	{
-		glDeleteVertexArrays(1, &vao);
-		vao = 0;
+		glDeleteVertexArrays(1, &vao_cube);
+		vao_cube = 0;
+	}
+
+	// PYRAMID
+	// Free vbo of texcoord
+	if (vbo_texcoord_pyramid)
+	{
+		glDeleteBuffers(1, &vbo_texcoord_pyramid);
+		vbo_texcoord_pyramid = 0;
+	}
+
+	// Free vbo of position
+	if (vbo_position_pyramid)
+	{
+		glDeleteBuffers(1, &vbo_position_pyramid);
+		vbo_position_pyramid = 0;
+	}
+
+	// Free VAO
+	if (vao_pyramid)
+	{
+		glDeleteVertexArrays(1, &vao_pyramid);
+		vao_pyramid = 0;
 	}
 
 	// DETACH, DELETE SHADER OBJECT AND DELETE SHADER PROGRAM OBJECT
