@@ -1,0 +1,10 @@
+logfile created succefully !!! 
+glXChooseVisual() succeded 
+OPENGL INFORMATION 
+**************** 
+OpenGL Vendor   : Intel 
+OpenGL Renderer : Mesa Intel(R) Graphics (RPL-S) 
+OpenGL Version  : 4.6 (Compatibility Profile) Mesa 24.2.8-1ubuntu1~24.04.1 
+**************** 
+initilize successed 
+Program Terminated succefully !!! 
