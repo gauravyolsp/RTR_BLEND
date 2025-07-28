@@ -1,0 +1,277 @@
+// standard header files
+#include <stdio.h>     // for printf()
+#include <stdlib.h>    // for exit()
+#include <memory.h>    // for memset()
+
+// X-lib header files
+#include <X11/Xlib.h> // windows.h
+#include <X11/Xutil.h>    // for visualinfo and related API
+#include <X11/XKBlib.h> // Keyboard related API's
+
+// MACROS
+#define WIN_WIDTH     800
+#define WIN_HEIGHT    600
+
+// global variables
+Display *gpDisplay = NULL;        
+XVisualInfo visualInfo;
+Window window;
+Colormap colormap;
+
+// Global variables for Full Screen
+Bool bFullScreen = False;
+
+int main(void)
+{
+    // function declaration
+    void toggleFullscreen(void);
+    void uninitilize(void);
+
+    // variable declarations
+    int defaultScreen;
+    int defaultDepth;
+    Status status;
+    XSetWindowAttributes windowAttributes;
+    Atom windowManagerDeleteAtom;
+    XEvent event;
+    // local variables for window centering
+    Screen *screen = NULL;
+    int screenWidth, screenHeight;
+
+    // Key symbol
+    KeySym keySym;
+    char keys[52] = {0}; // All though we only need 0th index, but for convension we take array for all Alphate capital and small
+        
+    // Hello world related variables
+    static XFontStruct *pFontStruct = NULL;
+    static int winWidth, winHeight;
+    static GC gc;
+    XGCValues gcValues;
+    XColor color;
+    long unsigned int strLenght;
+    int strWidth;
+    int fontHeight;
+    char str[] = "Hello Wolrd !!!"; 
+
+    //code
+
+    // open connection with x server
+    gpDisplay = XOpenDisplay(NULL);
+
+    if(gpDisplay == NULL)
+    {
+        printf("XOpenDisplay failed to connect with X-Server \n");
+        uninitilize();
+        exit(EXIT_FAILURE);
+    }
+
+    // create default screen object
+    defaultScreen = XDefaultScreen(gpDisplay);
+
+    // get default depth
+    defaultDepth = XDefaultDepth(gpDisplay,defaultScreen);
+
+    memset((void*)&visualInfo,0,sizeof(XVisualInfo));
+
+    // getvisual info
+    status = XMatchVisualInfo(gpDisplay,defaultScreen,defaultDepth,TrueColor,&visualInfo);
+    if(status == 0)
+    {
+        printf("xMatchVisualInfo() failed \n");
+        uninitilize();
+        exit(EXIT_FAILURE);
+    }
+
+    // set window attributes
+    memset((void*)&windowAttributes,0,sizeof(XSetWindowAttributes));
+
+    windowAttributes.border_pixel = 0;
+    windowAttributes.background_pixmap = 0;
+    windowAttributes.background_pixel = XBlackPixel(gpDisplay,visualInfo.screen);   // we can use defaultSreen as wll for 2 'nf parameter
+    windowAttributes.colormap = XCreateColormap(gpDisplay,
+                                                XRootWindow(gpDisplay,visualInfo.screen),
+                                                visualInfo.visual,
+                                                AllocNone);
+   colormap = windowAttributes.colormap;
+
+   windowAttributes.event_mask = KeyPressMask | ButtonPressMask | FocusChangeMask | StructureNotifyMask | ExposureMask;
+
+   // create window
+   window = XCreateWindow(gpDisplay,
+                          XRootWindow(gpDisplay,visualInfo.screen),
+                          0,
+                          0,
+                          WIN_WIDTH,
+                          WIN_HEIGHT,
+                          0,
+                          visualInfo.depth,
+                          InputOutput,
+                          visualInfo.visual,
+                          CWBorderPixel | CWBackPixel| CWEventMask | CWColormap,
+                          &windowAttributes);
+
+    if(!window)
+    {
+        printf("x-Create window failed \n");
+        uninitilize();
+        exit(EXIT_FAILURE);
+    }
+
+    // create atom for window manager to distroy window
+    windowManagerDeleteAtom = XInternAtom(gpDisplay,"WM_DELETE_WINDOW",True);
+    
+    XSetWMProtocols(gpDisplay,window,&windowManagerDeleteAtom,1);
+
+    // set window tittle
+    XStoreName(gpDisplay,window, " Gaurav : XWindow");
+
+    // map the window to show
+    XMapWindow(gpDisplay,window);
+
+    // Centering of window
+    screen = XScreenOfDisplay(gpDisplay, visualInfo.screen);
+    screenWidth = XWidthOfScreen(screen);
+    screenHeight = XHeightOfScreen(screen);
+    XMoveWindow(gpDisplay, window, (screenWidth/2 - WIN_WIDTH/2), (screenHeight/2 - WIN_HEIGHT/2));
+
+   // message loop
+    while(1)
+    {
+        XNextEvent(gpDisplay,&event);
+        switch (event.type)
+        {
+            case MapNotify:
+                pFontStruct = XLoadQueryFont(gpDisplay, "fixed");
+            break;
+            case FocusIn:
+            break;
+            case FocusOut:
+            break;
+            case ConfigureNotify:
+                winWidth = event.xconfigure.width;
+                winHeight = event.xconfigure.height;
+            break;
+            case KeyPress:
+            {
+                // For Escape key (having key code)
+                keySym = XkbKeycodeToKeysym(gpDisplay, event.xkey.keycode, 0, 0);
+
+                switch(keySym)
+                {
+                    case XK_Escape:
+                        XUnloadFont(gpDisplay, pFontStruct->fid);
+                        XFreeGC(gpDisplay, gc);
+                        uninitilize();
+                        exit(EXIT_SUCCESS);
+                    break;
+                    default:
+                    break;
+                }
+
+                // For Alphabetic key press
+                XLookupString(&event.xkey, keys, sizeof(keys), NULL, NULL);
+
+                switch(keys[0])
+                {
+                    case 'F':
+                    case 'f':
+                        if(bFullScreen == False)
+                        {
+                            toggleFullscreen();
+                            bFullScreen = True;
+                        }
+                        else
+                        {
+                            toggleFullscreen();
+                            bFullScreen = False;
+                        }
+                    break;
+                    default:
+                    break;
+                }
+            }break;
+            case ButtonPress:
+            break;
+            case Expose: // WM_PAINT
+                // create graphic context
+                gc = XCreateGC(gpDisplay, window, 0, &gcValues);
+                
+                // Set font
+                XSetFont(gpDisplay, gc, pFontStruct->fid);
+
+                // Get Green color for our text or foreground
+                XAllocNamedColor(gpDisplay, colormap, "green", &color, &color);
+
+                // Set this text color or foreground color in current gc
+                XSetForeground(gpDisplay, gc, color.pixel);
+
+                // Find the length of string
+                strLenght = strlen(str);
+
+                // Find the width of string
+                strWidth = XTextWidth(pFontStruct, str, strLenght);
+
+                // Find font height
+                fontHeight = pFontStruct->ascent + pFontStruct->descent;
+
+                // Draw the text
+                XDrawString(gpDisplay, window, gc, (winWidth/2 - strWidth/2), (winHeight/2 - fontHeight/2), str, strLenght);
+            break;
+            case 33:
+                XUnloadFont(gpDisplay, pFontStruct->fid);
+                XFreeGC(gpDisplay, gc);
+                uninitilize();
+                exit(EXIT_SUCCESS);
+            break;
+            default:
+            break;
+        }
+    }
+
+    uninitilize();
+
+    return 0;
+}
+
+void toggleFullscreen(void)
+{
+    // code
+    Atom windowMangerNormalStateAtom = XInternAtom(gpDisplay, "_NET_WM_STATE", False);
+    Atom windowManagerFullscreenStateAtom = XInternAtom(gpDisplay, "_NET_WM_STATE_FULLSCREEN", False);
+    XEvent event;
+    memset((void *)&event, 0x00, sizeof(XEvent));
+
+    event.type = ClientMessage;
+    event.xclient.window = window;
+    event.xclient.message_type = windowMangerNormalStateAtom;
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = bFullScreen ? 0 : 1;
+    event.xclient.data.l[1] = windowManagerFullscreenStateAtom;
+
+    // send above event to X Server
+    XSendEvent(gpDisplay, 
+            XRootWindow(gpDisplay, visualInfo.screen),
+            False, // child ko full screen krna hai ya nahi?
+            SubstructureNotifyMask,
+            &event);
+}
+
+void uninitilize(void)
+{
+    //code
+    if(window)
+    {
+        XDestroyWindow(gpDisplay,window);
+    }
+
+    if(colormap)
+    {
+        XFreeColormap(gpDisplay,colormap);
+    }
+
+    if(gpDisplay)
+    {
+        XCloseDisplay(gpDisplay);
+        gpDisplay = NULL;
+    }
+}
